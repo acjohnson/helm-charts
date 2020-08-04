@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  appstack:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2020-06-14T05:22:08.931445978Z"
+    description: appstack Helm chart
+    digest: 8c30397a604496765045eaaa23e25a1059976d0c8e404ca9819fa5c1faff70bc
+    name: appstack
+    urls:
+    - https://acjohnson.github.io/helm-charts/appstack-latest.tgz
+    version: 0.0.12
+generated: "2020-06-14T05:22:08.604147698Z"

@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "appstack.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "appstack.name" . }}
+    helm.sh/chart: {{ include "appstack.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if .Values.service.labels }}
+  {{- range $key, $value := .Values.service.labels }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  annotations:
+  {{- if .Values.service.annotations }}
+  {{- range $key, $value := .Values.service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.ingressController.traefik }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{ .Values.appstack.domain }}
+  {{- range $key, $value := .Values.service.traefik.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if eq .Values.service.type "LoadBalancer" }}
+  loadBalancerIP: {{ default "" .Values.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.service.port }}
+  selector:
+    app.kubernetes.io/name: {{ include "appstack.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

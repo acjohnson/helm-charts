@@ -1,0 +1,54 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "appstack.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "appstack.name" . }}
+    helm.sh/chart: {{ include "appstack.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if .Values.ingress.labels }}
+  {{- range $key, $value := .Values.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  annotations:
+  {{- if .Values.ingress.annotations }}
+  {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.ingressController.awsAlbIngressController }}
+  {{- range $key, $value := .Values.ingress.awsAlbIngressController.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.ingressController.traefik }}
+  {{- range $key, $value := .Values.ingress.traefik.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+spec:
+  rules:
+  {{- if .Values.ingressController.awsAlbIngressController }}
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: {{ include "appstack.fullname" . }}
+              servicePort: {{ .Values.service.port }}
+  tls:
+    - hosts:
+      - {{ .Release.Name }}.{{ .Values.appstack.domain }}
+  {{- end }}
+  {{- if .Values.ingressController.traefik }}
+  - host: {{ .Release.Name }}.{{ .Values.appstack.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ include "appstack.fullname" . }}
+          servicePort: {{ .Values.service.port }}
+  {{- end }}
+{{- end }}

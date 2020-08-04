@@ -1,0 +1,108 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+  helm: circleci/helm@0.2.3
+  kubernetes: circleci/kubernetes@0.10.1
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/python:latest
+    working_directory: ~/helm-charts
+    steps:
+      - checkout
+      - helm/install-helm-client:
+          version: v3.1.2
+      - run: |
+          cd ~/helm-charts
+          helm lint appstack
+
+  publish:
+    docker:
+      - image: circleci/python:latest
+    working_directory: ~/helm-charts
+    steps:
+      - checkout
+      - helm/install-helm-client:
+          version: v3.1.2
+      - run: |
+          cd ~/helm-charts
+          git config --global user.email "email@example.com"
+          git config --global user.name "CircleCI User"
+          ./update-repo.sh
+
+  test:
+    docker:
+      - image: circleci/python:latest
+    working_directory: ~/helm-charts
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/.aws
+      - kubernetes/install-kops
+      - kubernetes/install-kubectl
+      - helm/install-helm-client:
+          version: v3.1.2
+      - run: |
+          helm repo add stable https://kubernetes-charts.storage.googleapis.com
+      - run: kops export kubecfg --name kops.k8s.local --state "s3://kops-state-dev"
+      - run: "helm delete appstack-ci-test -n appstack-ci || :"
+      - run: "kubectl delete namespace appstack-ci || :"
+      - run: kubectl create namespace appstack-ci
+      - helm/upgrade-helm-chart:
+          namespace: appstack-ci
+          chart: ~/helm-charts/appstack
+          release-name: appstack-ci-test
+          timeout: 5m
+          values-to-override: image.repository=bitnami/nginx,image.tag=1.16.1-debian-9-r81,livenessProbe.initialDelaySeconds=15,readinessProbe.initialDelaySeconds=30
+          version: v3.1.2
+      - run: "helm delete appstack-ci-test -n appstack-ci"
+      - run: "kubectl delete namespace appstack-ci"
+
+  initialize-workspace:
+    docker:
+      - image: circleci/python:latest
+    steps:
+      - aws-cli/install
+      - aws-cli/configure:
+          profile-name: default
+          aws-access-key-id: AWS_ACCESS_KEY_ID_DEV
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY_DEV
+          aws-region: AWS_REGION
+      - persist_to_workspace:
+          root: ~/.aws
+          paths:
+            - "*"
+workflows:
+  release:
+    jobs:
+      - initialize-workspace:
+          context: example
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - lint:
+          requires:
+            - initialize-workspace
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - test:
+          requires:
+            - initialize-workspace
+          context: example
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - publish:
+          requires:
+            - test
+            - lint
+          filters:
+            branches:
+              only:
+                - master
