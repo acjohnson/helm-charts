@@ -1,0 +1,26 @@
+#!/usr/bin/with-contenv sh
+
+export EMBYCONF="/config/config/system.xml"
+
+function setPref {
+  local key="$1"
+  local value="$2"
+
+  xmlstarlet ed --inplace -s "/ServerConfiguration" -t elem -n "${key}" -v "${value}" "${EMBYCONF}"
+}
+
+# If PKCSMANGLER__PFXINCONTAINERPATH is set, then assume we want to move the PFX Cert to that location and enable in system.xml
+if [ ! -z "${PKCSMANGLER_PFXINCONTAINERPATH}" ]; then
+  # If it ends up a problem, we may need to set some kind of "don't replace existing PFX cert"
+  cp -f /shared/cert.pfx "${PKCSMANGLER_PFXINCONTAINERPATH}"
+  setPref "CertificatePath" "${PKCSMANGLER_PFXINCONTAINERPATH}"
+fi
+
+# If PKCSMANGLER_PFXPASSWORD is set, then assume we want to set the Emby Preference CertificatePassword
+if [ ! -z "${PKCSMANGLER_PFXPASSWORD}" ]; then
+  setPref "CertificatePassword" "${PKCSMANGLER_PFXPASSWORD}"
+fi
+
+# touch /.firstRunComplete
+# echo "Emby Server first run setup complete"
+echo "PKCS Mangler run complete"

@@ -1,0 +1,36 @@
+{{- if .Values.logging.promtail.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "emby.fullname" . }}-promtail
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "emby.name" . }}
+    helm.sh/chart: {{ include "emby.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  promtail.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+    positions:
+      filename: /tmp/positions.yaml
+    clients:
+    - url: {{ .Values.logging.promtail.loki.url }}
+    scrape_configs:
+    - job_name: emby-logs
+      static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: emby-logs
+          __path__: "/emby-logs/*.log"
+    - job_name: emby-plugin-logs
+      static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: emby-plugin-logs
+          __path__: "/emby-logs/Emby Plugin Logs/*.log"
+{{- end }}
