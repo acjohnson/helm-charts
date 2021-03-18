@@ -1,0 +1,21 @@
+{{- if .Values.components.osp_ejabberd }}
+{{- if (and .Values.volumes.persistence .Values.osp_ejabberd.volumes.persistence) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+  namespace: {{ template "osp.namespace" . }}
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.osp_ejabberd.volumes.data.size }}
+  accessModes: [ "{{ .Values.osp_ejabberd.volumes.data.accessMode }}" ]
+{{- if .Values.osp_ejabberd.volumes.data.storageClassName }}
+  storageClassName: "{{ .Values.osp_ejabberd.volumes.data.storageClassName }}"
+{{- else if and (not (and .Values.volumes.local_storage .Values.osp_ejabberd.volumes.data.local_storage)) .Values.osp_ejabberd.volumes.data.storageClass }}
+  storageClassName: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+{{- else if and .Values.volumes.local_storage .Values.osp_ejabberd.volumes.data.local_storage }}
+  storageClassName: "local-storage"
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+{{- if .Values.components.osp_core }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_core.component }}
+  annotations:
+{{ toYaml .Values.osp_core.service.annotations | indent 4 }}
+spec:
+  type: {{ .Values.osp_core.service.type }}
+  ports:
+    - name: server
+      port: {{ .Values.osp_core.service.port }}
+      protocol: TCP
+      targetPort: server
+  selector:
+    app: {{ template "osp.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.osp_core.component }}
+{{- end }}

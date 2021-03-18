@@ -1,0 +1,67 @@
+{{- if .Values.components.osp_rtmp }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_rtmp.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_rtmp.component }}
+spec:
+  replicas: {{ .Values.osp_rtmp.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "osp.matchLabels" . | nindent 6 }}
+      component: {{ .Values.osp_rtmp.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "osp.template.labels" . | nindent 8 }}
+        component: {{ .Values.osp_rtmp.component }}
+      annotations:
+        {{- if .Values.osp_rtmp.restartPodsOnConfigMapChange }}
+        checksum/config: {{ include (print $.Template.BasePath "/osp_rtmp-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{ toYaml .Values.osp_rtmp.annotations | indent 8 }}
+    spec:
+    {{- if .Values.osp_rtmp.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.osp_rtmp.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.osp_rtmp.tolerations }}
+      tolerations:
+{{ toYaml .Values.osp_rtmp.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.osp_rtmp.gracePeriod }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{- end }}
+      containers:
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_rtmp.component }}"
+        image: "{{ .Values.images.osp_rtmp.repository }}:{{ .Values.images.osp_rtmp.tag }}"
+        imagePullPolicy: {{ .Values.images.osp_rtmp.pullPolicy }}
+        {{- if .Values.osp_rtmp.resources }}
+        resources:
+{{ toYaml .Values.osp_rtmp.resources | indent 10 }}
+        {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.osp_rtmp.port }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+        volumeMounts:
+        - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+          mountPath: /var/www
+      volumes:
+    {{- if not (and .Values.volumes.persistence .Values.osp_core.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+        emptyDir: {}
+    {{- end }}
+    {{- if (and .Values.volumes.persistence .Values.osp_core.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+    {{- end }}
+{{- end }}

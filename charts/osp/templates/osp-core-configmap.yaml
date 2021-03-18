@@ -1,0 +1,12 @@
+{{- if .Values.components.osp_core }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_core.component }}
+data:
+{{ toYaml .Values.osp_core.configData | indent 2 }}
+{{- end }}

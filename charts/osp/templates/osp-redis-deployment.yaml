@@ -1,0 +1,44 @@
+{{- if .Values.components.osp_redis }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_redis.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_redis.component }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "osp.matchLabels" . | nindent 6 }}
+      component: {{ .Values.osp_redis.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "osp.template.labels" . | nindent 8 }}
+        component: {{ .Values.osp_redis.component }}
+      annotations:
+{{ toYaml .Values.osp_redis.annotations | indent 8 }}
+    spec:
+    {{- if .Values.osp_redis.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.osp_redis.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.osp_redis.tolerations }}
+      tolerations:
+{{ toYaml .Values.osp_redis.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.osp_redis.gracePeriod }}
+      containers:
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_redis.component }}"
+        image: "{{ .Values.images.osp_redis.repository }}:{{ .Values.images.osp_redis.tag }}"
+        imagePullPolicy: {{ .Values.images.osp_redis.pullPolicy }}
+        {{- if .Values.osp_redis.resources }}
+        resources:
+{{ toYaml .Values.osp_redis.resources | indent 10 }}
+        {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.osp_redis.port }}
+{{- end }}

@@ -1,0 +1,90 @@
+{{- if .Values.components.osp_db }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_db.component }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "osp.matchLabels" . | nindent 6 }}
+      component: {{ .Values.osp_db.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "osp.template.labels" . | nindent 8 }}
+        component: {{ .Values.osp_db.component }}
+      annotations:
+{{ toYaml .Values.osp_db.annotations | indent 8 }}
+    spec:
+    {{- if .Values.osp_db.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.osp_db.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.osp_db.tolerations }}
+      tolerations:
+{{ toYaml .Values.osp_db.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.osp_db.gracePeriod }}
+      containers:
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}"
+        image: "{{ .Values.images.osp_db.repository }}:{{ .Values.images.osp_db.tag }}"
+        imagePullPolicy: {{ .Values.images.osp_db.pullPolicy }}
+        {{- if .Values.osp_db.resources }}
+        resources:
+{{ toYaml .Values.osp_db.resources | indent 10 }}
+        {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.osp_db.port }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
+              key: MYSQL_USER
+        {{- if .Values.osp_db.probe.liveness.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - bash 
+            - "-c" 
+            - | 
+              /usr/bin/mysql --user=root --password=$MYSQL_ROOT_PASSWORD -h 127.0.0.1 -e 'SHOW DATABASES;'
+          failureThreshold: {{ .Values.osp_db.probe.liveness.failureThreshold }}
+          initialDelaySeconds: {{ .Values.osp_db.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.osp_db.probe.liveness.periodSeconds }}
+        {{- end }}
+        volumeMounts:
+        - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-{{ .Values.osp_db.volumes.data.name }}"
+          mountPath: /var/lib/mysql
+      volumes:
+    {{- if not (and .Values.volumes.persistence .Values.osp_db.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-{{ .Values.osp_db.volumes.data.name }}"
+        emptyDir: {}
+    {{- end }}
+    {{- if (and .Values.volumes.persistence .Values.osp_db.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-{{ .Values.osp_db.volumes.data.name }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-{{ .Values.osp_db.volumes.data.name }}"
+    {{- end }}
+{{- end }}

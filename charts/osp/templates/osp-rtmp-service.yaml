@@ -1,0 +1,22 @@
+{{- if .Values.components.osp_rtmp }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_rtmp.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_rtmp.component }}
+  annotations:
+{{ toYaml .Values.osp_rtmp.service.annotations | indent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: {{ .Values.osp_rtmp.port }}
+      protocol: TCP
+  selector:
+    app: {{ template "osp.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.osp_rtmp.component }}
+{{- end }}

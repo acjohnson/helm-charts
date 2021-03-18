@@ -1,0 +1,33 @@
+{{- if .Values.osp_core.ingress.enabled }}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_core.component }}
+  annotations:
+{{- with .Values.osp_core.ingress.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+  namespace: {{ template "osp.namespace" . }}
+spec:
+{{- if .Values.osp_core.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.osp_core.ingress.hostname }}
+      {{- with .Values.osp_core.ingress.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+{{- end }}
+  rules:
+    - http:
+        paths:
+          - path: {{ .Values.osp_core.ingress.path }}
+            backend:
+              serviceName: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+              servicePort: {{ .Values.osp_core.service.port }}
+      {{- if .Values.osp_core.ingress.hostname }}
+      host: {{ .Values.osp_core.ingress.hostname }}
+      {{- end }}
+{{- end }}

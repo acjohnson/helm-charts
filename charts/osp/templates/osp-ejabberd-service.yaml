@@ -1,0 +1,28 @@
+{{- if .Values.components.osp_ejabberd }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_ejabberd.component }}
+  annotations:
+{{ toYaml .Values.osp_ejabberd.service.annotations | indent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: {{ .Values.osp_ejabberd.ports.ejabberd_http }}
+      protocol: TCP
+    - name: server-xmlrpc
+      port: {{ .Values.osp_ejabberd.ports.ejabberd_xmlrpc }}
+      protocol: TCP
+    - name: server-xmpp
+      port: {{ .Values.osp_ejabberd.ports.ejabberd_xmpp }}
+      protocol: TCP
+  selector:
+    app: {{ template "osp.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.osp_ejabberd.component }}
+{{- end }}

@@ -1,0 +1,372 @@
+###
+### K8S Settings
+###
+
+### Namespace to deploy Open Streaming Platform
+# The namespace to use to deploy the osp components, if left empty
+# will default to .Release.Namespace (aka helm --namespace).
+namespace: "osp"
+namespaceCreate: false
+
+###
+### Global Settings
+###
+
+## Persistence
+##
+## If persistence is enabled, components that have state will
+## be deployed with PersistentVolumeClaims, otherwise, for test
+## purposes, they will be deployed with emptyDir
+##
+## This is a global setting that is applied to all components.
+## If you need to disable persistence for a component,
+## you can set the `volume.persistence` setting to `false` for
+## that component.
+##
+## Volume settings
+volumes:
+  persistence: true
+  # configure the components to use local persistent volume
+  # the local provisioner should be installed prior to enable local persistent volume
+  local_storage: false
+
+## AntiAffinity
+##
+## Flag to enable and disable `AntiAffinity` for all components.
+## This is a global setting that is applied to all components.
+## If you need to disable AntiAffinity for a component, you can set
+## the `affinity.anti_affinity` settings to `false` for that component.
+affinity:
+  anti_affinity: true
+  # Set the anti affinity type. Valid values:
+  # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+  # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+  type: requiredDuringSchedulingIgnoredDuringExecution
+
+## Components
+##
+## Control what components of Open Streaming Platform to deploy for the cluster
+components:
+  # osp_ejabberd
+  osp_ejabberd: true
+  # osp_core
+  osp_core: true
+  # osp_rtmp
+  ## Warning: In order for osp_rtmp to function correctly it needs to share storage with osp_core
+  ## which means we must use either ReadWriteMany or ReadOnlyMany PVCs
+  osp_rtmp: true
+  # osp_db
+  osp_db: true
+  # osp_redis
+  osp_redis: true
+
+## Images
+##
+## Control what images to use for each component
+images:
+  osp_ejabberd:
+    repository: registry.thejohnsons.site/deamos/080_osp_ejabberd
+    tag: 0.8.3
+    pullPolicy: IfNotPresent
+  osp_core:
+    repository: registry.thejohnsons.site/deamos/080_osp_core
+    tag: 0.8.3
+    pullPolicy: IfNotPresent
+  osp_rtmp:
+    repository: registry.thejohnsons.site/deamos/080_osp_rtmp
+    tag: 0.8.3
+    pullPolicy: IfNotPresent
+  osp_db:
+    repository: mariadb
+    tag: 10.5.8
+    pullPolicy: IfNotPresent
+  osp_redis:
+    repository: redis
+    tag: 6.0.10
+    pullPolicy: IfNotPresent
+
+# If osp images are hosted from a private registry you can add the name of the docker creds secret
+# but you must create a secret in the osp namespace first
+#
+# kubectl create secret generic regcred \
+#    --from-file=.dockerconfigjson=<path/to/.docker/config.json> \
+#    --type=kubernetes.io/dockerconfigjson
+#
+# Detailed instruction can be found here https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+#
+# imagePullSecret: regcred
+
+######################################################################
+# Below are settings for each component
+######################################################################
+
+## OSP: ejabberd
+## templates/osp-ejabberd-deployment.yaml
+##
+osp_ejabberd:
+  component: osp-ejabberd
+  ports:
+    ejabberd_http: 5280
+    ejabberd_xmlrpc: 4560
+    ejabberd_xmpp: 5222
+  password: changeme
+  # Increasing the replicaCount for osp_ejabberd requires a ReadWriteMany PVC
+  # in order for ejabberd to function properly and have access to the same content on all pods
+  replicaCount: 1
+  # True includes annotation for deployment that contains hash of corresponding configmap, which will cause pods to restart on configmap change
+  restartPodsOnConfigMapChange: false
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 20Gi
+      local_storage: true
+      accessMode: ReadWriteOnce
+      ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
+      ##
+      # storageClassName: existent-storage-class
+      #
+      ## Instead if you want to create a new storage class define it below
+      ## If left undefined no storage class will be defined along with PVC
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.2
+  # To customize the ejabberd.yml configuration you will need to first create a configmap
+  # in the osp namespace using a local copy of the file that you have customized already
+  # An example config can be found here https://github.com/processone/ejabberd/blob/master/ejabberd.yml.example
+  # 
+  # kubectl -n osp create configmap osp-osp-ejabberd-app-config --from-file=ejabberd.yml
+  #
+  # Then set to true and your customized file will be created at /home/ejabberd/conf/ejabberd.yml
+  customConfig: false
+  ## osp_ejabberd service
+  ## templates/osp-ejabberd-service.yaml
+  ##
+  service:
+    annotations: {}
+
+## OSP: Core
+## templates/osp-core-deployment.yaml
+##
+osp_core:
+  component: osp-core
+  flask:
+    secret: changeme
+    salt: changeme
+  # Increasing the replicaCount for osp_core requires a ReadWriteMany PVC
+  # in order for OSP to function properly and have access to the same content on all pods
+  replicaCount: 1
+  # True includes annotation for deployment that contains hash of corresponding configmap, which will cause pods to restart on configmap change
+  restartPodsOnConfigMapChange: false
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  ## osp_core service
+  ## templates/osp-core-service.yaml
+  service:
+    type: ClusterIP
+    port: 8088
+    targetPort: 80
+    annotations: {}
+  ## osp_core ingress
+  ## templates/osp-core-ingress.yaml
+  ##
+  ingress:
+    enabled: false
+    annotations: {}
+    tls:
+      enabled: false
+      ## Optional. Leave it blank if your Ingress Controller can provide a default certificate.
+      secretName: ""
+    hostname: ""
+    path: "/"
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 50Gi
+      local_storage: true
+      accessMode: ReadWriteOnce
+      ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
+      ##
+      # storageClassName: existent-storage-class
+      #
+      ## Instead if you want to create a new storage class define it below
+      ## If left undefined no storage class will be defined along with PVC
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
+    readiness:
+      enabled: false
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 60
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.2
+  configData:
+    TZ: UTC
+    EJABBERD_DOMAIN: streams.example.com
+    OSPCOREAPI: http://streams.example.com
+    OSP_SERVER_ADDRESS: streams.example.com
+    OSP_API_PROTOCOL: http
+    OSP_API_DOMAIN: streams.example.com
+    OSP_ALLOWREGISTRATION: "True"
+    OSP_REQUIREVERIFICATION: "False"
+
+## OSP: RTMP
+## templates/osp-rtmp-deployment.yaml
+##
+osp_rtmp:
+  component: osp-rtmp
+  # Increasing the replicaCount for osp_rtmp requires a ReadWriteMany or ReadOnlyMany PVC
+  # in order for OSP to function properly and have access to the same content on all pods
+  replicaCount: 1
+  # True includes annotation for deployment that contains hash of corresponding configmap, which will cause pods to restart on configmap change
+  restartPodsOnConfigMapChange: false
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  port: 1935
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.2
+  ## osp_rtmp service
+  ## templates/osp-rtmp-service.yaml
+  ##
+  service:
+    annotations: {}
+
+## OSP: Database
+## templates/osp-db-deployment.yaml
+##
+osp_db:
+  component: osp-db
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  port: 3306
+  db_name: osp
+  db_root_password: changeme
+  db_user:
+    user: osp
+    password: changeme
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 50Gi
+      local_storage: true
+      accessMode: ReadWriteOnce
+      ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
+      ##
+      # storageClassName: existent-storage-class
+      #
+      ## Instead if you want to create a new storage class define it below
+      ## If left undefined no storage class will be defined along with PVC
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 5
+      initialDelaySeconds: 30
+      periodSeconds: 60
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.2
+  ## osp_db service
+  ## templates/osp-db-service.yaml
+  ##
+  service:
+    annotations: {}
+
+## OSP: Redis
+## templates/osp-redis-deployment.yaml
+##
+osp_redis:
+  component: osp-redis
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  port: 6379
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.1
+  ## osp_redis service
+  ## templates/osp-redis-service.yaml
+  ##
+  service:
+    annotations: {}

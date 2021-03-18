@@ -1,0 +1,21 @@
+{{- if .Values.components.osp_core }}
+{{- if (and .Values.volumes.persistence .Values.osp_core.volumes.persistence) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+  namespace: {{ template "osp.namespace" . }}
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.osp_core.volumes.data.size }}
+  accessModes: [ "{{ .Values.osp_core.volumes.data.accessMode }}" ]
+{{- if .Values.osp_core.volumes.data.storageClassName }}
+  storageClassName: "{{ .Values.osp_core.volumes.data.storageClassName }}"
+{{- else if and (not (and .Values.volumes.local_storage .Values.osp_core.volumes.data.local_storage)) .Values.osp_core.volumes.data.storageClass }}
+  storageClassName: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
+{{- else if and .Values.volumes.local_storage .Values.osp_core.volumes.data.local_storage }}
+  storageClassName: "local-storage"
+{{- end }}
+{{- end }}
+{{- end }}

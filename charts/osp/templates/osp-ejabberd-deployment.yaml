@@ -1,0 +1,87 @@
+{{- if .Values.components.osp_ejabberd }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_ejabberd.component }}
+spec:
+  replicas: {{ .Values.osp_ejabberd.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "osp.matchLabels" . | nindent 6 }}
+      component: {{ .Values.osp_ejabberd.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "osp.template.labels" . | nindent 8 }}
+        component: {{ .Values.osp_ejabberd.component }}
+      annotations:
+        {{- if .Values.osp_ejabberd.restartPodsOnConfigMapChange }}
+        checksum/config: {{ include (print $.Template.BasePath "/osp_ejabberd-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{ toYaml .Values.osp_ejabberd.annotations | indent 8 }}
+    spec:
+    {{- if .Values.osp_ejabberd.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.osp_ejabberd.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.osp_ejabberd.tolerations }}
+      tolerations:
+{{ toYaml .Values.osp_ejabberd.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.osp_ejabberd.gracePeriod }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+      {{- end }}
+      containers:
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}"
+        image: "{{ .Values.images.osp_ejabberd.repository }}:{{ .Values.images.osp_ejabberd.tag }}"
+        imagePullPolicy: {{ .Values.images.osp_ejabberd.pullPolicy }}
+        {{- if .Values.osp_ejabberd.resources }}
+        resources:
+{{ toYaml .Values.osp_ejabberd.resources | indent 10 }}
+        {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.osp_ejabberd.ports.ejabberd_http }}
+        - name: server-xmlrpc
+          containerPort: {{ .Values.osp_ejabberd.ports.ejabberd_xmlrpc }}
+        - name: server-xmpp
+          containerPort: {{ .Values.osp_ejabberd.ports.ejabberd_xmpp }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+        env:
+        - name: EJABBERD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-secret"
+              key: EJABBERD_PASSWORD
+        volumeMounts:
+        - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+          mountPath: /home/ejabberd/database
+        {{- if .Values.osp_ejabberd.customConfig }}
+        - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-app-config"
+          mountPath: /home/ejabberd/conf/ejabberd.yml
+          subPath: "ejabberd.yml"
+        {{- end }}
+      volumes:
+    {{- if not (and .Values.volumes.persistence .Values.osp_ejabberd.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+        emptyDir: {}
+    {{- end }}
+    {{- if (and .Values.volumes.persistence .Values.osp_ejabberd.volumes.persistence) }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-{{ .Values.osp_ejabberd.volumes.data.name }}"
+    {{- end }}
+    {{- if .Values.osp_ejabberd.customConfig }}
+      - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-app-config"
+        configMap:
+          name: "{{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}-app-config"
+    {{- end }}
+{{- end }}
