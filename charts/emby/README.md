@@ -21,9 +21,9 @@ Emby Server
 ## TL;DR
 
 ```console
-helm repo add acjohnson https://acjohnson.github.io/helm-charts
+helm repo add thejohnsons https://charts.thejohnsons.site
 helm repo update
-helm install emby acjohnson/emby
+helm install emby thejohnsons/emby
 ```
 
 ## Installing the Chart
@@ -31,7 +31,7 @@ helm install emby acjohnson/emby
 To install the chart with the release name `emby`
 
 ```console
-helm install emby acjohnson/emby
+helm install emby thejohnsons/emby
 ```
 
 ## Uninstalling the Chart
@@ -53,13 +53,13 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 helm install emby \
   --set env.TZ="America/New York" \
-    acjohnson/emby
+    thejohnsons/emby
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart.
 
 ```console
-helm install emby acjohnson/emby -f values.yaml
+helm install emby thejohnsons/emby -f values.yaml
 ```
 
 ## Custom configuration

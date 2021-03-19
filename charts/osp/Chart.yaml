@@ -1,13 +1,15 @@
----
-apiVersion: v1
-appVersion: "0.8.3"
-description: Open Streaming Platform Helm chart for Kubernetes
+apiVersion: v2
+appVersion: 0.8.3
+description: Open Streaming Platform
 name: osp
-version: 0.8.3-1
+version: 0.8.3
+keywords:
+  - osp
 home: https://openstreamingplatform.com/
-sources:
-- https://gitlab.com/Deamos/flask-nginx-rtmp-manager
 icon: https://openstreamingplatform.com/img/osplogo_nav.png
+sources:
+  - https://gitlab.com/Deamos/flask-nginx-rtmp-manager
+  - https://gitlab.com/Deamos/open-streaming-platform-docker/-/tree/development
 maintainers:
   - name: acjohnson
     email: acjohnson@pcdomain.com

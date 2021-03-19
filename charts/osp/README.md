@@ -61,7 +61,7 @@ helm -n osp upgrade osp \
   --set osp_db.volumes.data.accessMode="ReadWriteOnce" \
   --set osp_db.volumes.data.storageClassName="nfs-client" \
   --set osp_db.probe.liveness.enabled=true \
-  acjohnson/osp
+  thejohnsons/osp
 ```
 
 ## Uninstalling the Chart
