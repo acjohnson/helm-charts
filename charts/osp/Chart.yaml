@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: 0.8.3
+appVersion: 0.8.7
 description: Open Streaming Platform
 name: osp
-version: 0.8.3
+version: 0.8.7
 keywords:
   - osp
 home: https://openstreamingplatform.com/

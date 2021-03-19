@@ -23,8 +23,6 @@ helm -n osp upgrade osp \
   --set images.osp_ejabberd.pullPolicy="Always" \
   --set images.osp_core.pullPolicy="Always" \
   --set images.osp_rtmp.pullPolicy="Always" \
-  --set images.osp_db.pullPolicy="Always" \
-  --set images.osp_redis.pullPolicy="Always" \
   --set imagePullSecret="regcred" \
   --set osp_ejabberd.password="changeme" \
   --set osp_ejabberd.customConfig="true" \
