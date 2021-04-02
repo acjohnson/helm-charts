@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "koel.fullname" . }}-tcp
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+{{- if .Values.serviceTCP.labels }}
+{{ toYaml .Values.serviceTCP.labels | indent 4 }}
+{{- end }}
+{{- with .Values.serviceTCP.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if (or (eq .Values.serviceTCP.type "ClusterIP") (empty .Values.serviceTCP.type)) }}
+  type: ClusterIP
+  {{- if .Values.serviceTCP.clusterIP }}
+  clusterIP: {{ .Values.serviceTCP.clusterIP }}
+  {{end}}
+{{- else if eq .Values.serviceTCP.type "LoadBalancer" }}
+  type: {{ .Values.serviceTCP.type }}
+  {{- if .Values.serviceTCP.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.serviceTCP.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.serviceTCP.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.serviceTCP.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.serviceTCP.type }}
+{{- end }}
+{{- if .Values.serviceTCP.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.serviceTCP.externalIPs | indent 4 }}
+{{- end }}
+  {{- if .Values.serviceTCP.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.serviceTCP.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - name: koel-http
+      port: {{ .Values.serviceTCP.ports.http }}
+      protocol: TCP
+      targetPort: koel-http
+{{ if (and (eq .Values.serviceTCP.type "NodePort") (not (empty .Values.serviceTCP.nodePort))) }}
+      nodePort: {{.Values.serviceTCP.nodePort}}
+{{ end }}
+    - name: koel-https
+      port: {{ .Values.serviceTCP.ports.https }}
+      protocol: TCP
+      targetPort: koel-https
+{{ if (and (eq .Values.serviceTCP.type "NodePort") (not (empty .Values.serviceTCP.nodePort))) }}
+      nodePort: {{.Values.serviceTCP.nodePort}}
+{{ end }}
+  selector:
+    {{- include "koel.selectorLabels" . | nindent 4 }}

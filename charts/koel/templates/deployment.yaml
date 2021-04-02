@@ -1,0 +1,286 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "koel.fullname" . }}
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+  {{- if .Values.deploymentAnnotations }}
+  annotations:
+    {{- range $key, $value := .Values.deploymentAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: {{ .Values.strategyType }}
+  selector:
+    matchLabels:
+      {{- include "koel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "koel.selectorLabels" . | nindent 8 }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if .Values.hostNetwork }}
+      hostNetwork: {{ .Values.hostNetwork }}
+      dnsPolicy: ClusterFirstWithHostNet
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: koel-http
+            protocol: TCP
+            containerPort: {{.Values.httpPort}}
+          - name: koel-https
+            protocol: TCP
+            containerPort: {{.Values.httpsPort}}
+          env:
+          - name: "APP_URL"
+            value: "{{ .Values.appUrl }}"
+          - name: "APP_ENV"
+            value: "{{ .Values.appEnv }}"
+          - name: "MEDIA_PATH"
+            value: "/music"
+          - name: "DB_CONNECTION"
+            value: "{{ .Values.dbConnection }}"
+  {{- if not eq .Values.dbConnection "sqlite" }}
+          - name: "DB_HOST"
+            value: "{{ template "koel.fullname" . }}-database"
+          - name: "DB_USERNAME"
+            value: "{{ .Values.dbUsername }}"
+          - name: "DB_PASSWORD"
+            value: "{{ .Values.dbPassword }}"
+  {{- end }}
+          - name: "DB_DATABASE"
+            value: "{{ .Values.dbDatabase }}"
+  {{- if eq .Values.dbConnection "pgsql" }}
+          - name: "POSTGRES_PASSWORD"
+            value: "{{ .Values.dbRootPassword }}"
+  {{- end }}
+  {{- if eq .Values.dbConnection "mysql" }}
+          - name: "MYSQL_ROOT_PASSWORD"
+            value: "{{ .Values.dbRootPassword }}"
+  {{- end }}
+          - name: "HTTP_PORT"
+            value: "{{ .Values.httpPort }}"
+          - name: "HTTPS_PORT"
+            value: "{{ .Values.httpsPort }}"
+          - name: "APACHE_RUN_USER"
+            value: "{{ .Values.apacheRunUser }}"
+          - name: "APACHE_RUN_GROUP"
+            value: "{{ .Values.apacheRunGroup }}"
+          - name: "ADMIN_NAME"
+            value: "{{ .Values.adminName }}"
+          - name: "ADMIN_EMAIL"
+            value: "{{ .Values.adminEmail }}"
+          - name: "ADMIN_PASSWORD"
+            value: "{{ .Values.adminPassword }}"
+          - name: KOEL_IMAGE
+            value: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          - name: KUBE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: TRANSCODE_PVC
+  {{- if .Values.persistence.transcode.claimName }}
+            value: "{{ .Values.persistence.transcode.claimName }}"
+  {{- else }}
+            value: "{{ template "koel.fullname" . }}-transcode"
+  {{- end }}
+  {{- if .Values.persistence.music.enabled }}
+          - name: MUSIC_PVC
+  {{- if .Values.persistence.music.claimName }}
+            value: "{{ .Values.persistence.music.claimName }}"
+  {{- else }}
+            value: "{{ template "koel.fullname" . }}-music"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.persistence.covers.enabled }}
+          - name: COVERS_PVC
+  {{- if .Values.persistence.covers.claimName }}
+            value: "{{ .Values.persistence.covers.claimName }}"
+  {{- else }}
+            value: "{{ template "koel.fullname" . }}-covers"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.persistence.data.enabled }}
+          - name: DATA_PVC
+  {{- if .Values.persistence.data.claimName }}
+            value: "{{ .Values.persistence.data.claimName }}"
+  {{- else }}
+            value: "{{ template "koel.fullname" . }}-data"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.proxy.enabled }}
+  {{- if .Values.proxy.http }}
+          - name: "HTTP_PROXY"
+            value: "{{ .Values.proxy.http }}"
+  {{- end }}
+  {{- if .Values.proxy.https }}
+          - name: "HTTPS_PROXY"
+            value: "{{ .Values.proxy.https }}"
+  {{- end }}
+  {{- if .Values.proxy.noproxy }}
+          - name: "NO_PROXY"
+            value: "{{ .Values.proxy.noproxy }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.publicHttpPort }}
+          - name: "PUBLIC_HTTP_PORT"
+            value: "{{ .Values.publicHttpPort }}"
+  {{- end }}
+  {{- if .Values.publicHttpsPort }}
+          - name: "PUBLIC_HTTPS_PORT"
+            value: "{{ .Values.publicHttpsPort }}"
+  {{- end }}
+# Extra ENV Values supplied by user
+{{- range $key, $value := .Values.extraEnv }}
+          - name: {{ $key }}
+            value: "{{ $value }}"
+{{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.startup.enabled }}
+          startupProbe:
+            {{- omit .Values.probes.startup "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.persistence.music.enabled }}
+          - name: music
+            mountPath: /music
+          {{- if .Values.persistence.music.subPath }}
+            subPath: {{ .Values.persistence.music.subPath }}
+          {{ end }}
+          {{ end }}
+          {{- if .Values.persistence.covers.enabled }}
+          - name: covers
+            mountPath: /var/www/html/public/img/covers
+          {{- if .Values.persistence.covers.subPath }}
+            subPath: {{ .Values.persistence.covers.subPath }}
+          {{ end }}
+          {{ end }}
+          {{- if .Values.persistence.data.enabled }}
+          - name: data
+            mountPath: /data
+          {{- if .Values.persistence.data.subPath }}
+            subPath: {{ .Values.persistence.data.subPath }}
+          {{ end }}
+          {{ end }}
+          {{-  range .Values.persistence.extraMounts }}
+          {{- if .mountPath }}
+          - mountPath: /{{ .mountPath }}
+          {{- else }}
+          - mountPath: /{{ .name }}
+          {{- end }}
+          {{- if .subPath }}
+            subPath: {{ .subPath }}
+          {{ end }}
+            name: {{ .name }}
+          {{- end }}
+          {{- if .Values.koelPreferences.enabled }}
+          - name: {{ .Values.koelPreferences.volume.name }}
+            mountPath: {{ .Values.koelPreferences.volume.mountPath }}
+            subPath: {{ .Values.koelPreferences.volume.subPath }}
+          {{- end }}
+          {{- if .Values.certificate.pkcsMangler.enabled }}
+          - name: {{ .Values.certificate.pkcsMangler.volume.name }}
+            mountPath: {{ .Values.certificate.pkcsMangler.volume.mountPath }}
+            subPath: {{ .Values.certificate.pkcsMangler.volume.subPath }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+##### VOLUMES START #####
+      volumes:
+{{- if .Values.persistence.music.enabled }}
+      - name: music
+        persistentVolumeClaim:
+  {{- if .Values.persistence.music.claimName }}
+          claimName: "{{ .Values.persistence.music.claimName }}"
+  {{- else }}
+          claimName: "{{ template "koel.fullname" . }}-music"
+  {{- end }}
+{{- end }}
+{{- if .Values.persistence.covers.enabled }}
+      - name: covers
+        persistentVolumeClaim:
+  {{- if .Values.persistence.covers.claimName }}
+          claimName: "{{ .Values.persistence.covers.claimName }}"
+  {{- else }}
+          claimName: "{{ template "koel.fullname" . }}-covers"
+  {{- end }}
+{{- end }}
+{{- if .Values.persistence.data.enabled }}
+      - name: data
+        persistentVolumeClaim:
+  {{- if .Values.persistence.data.claimName }}
+          claimName: "{{ .Values.persistence.data.claimName }}"
+  {{- else }}
+          claimName: "{{ template "koel.fullname" . }}-data"
+  {{- end }}
+{{- end }}
+{{- range .Values.persistence.extraMounts }}
+  {{- if .claimName }}
+      - name: {{ .name }}
+        persistentVolumeClaim:
+          claimName: {{ .claimName }}
+  {{- else if .volume }}
+      - name: {{ .name }}
+        {{- toYaml .volume | nindent 8 }}
+  {{- end }}
+{{- end }}
+      - name: shared
+        emptyDir: {}
+      - name: shared-logs
+        emptyDir: {}
+      {{- if .Values.koelPreferences.enabled }}
+      - name: {{ .Values.koelPreferences.volume.name }}
+        configMap:
+          name: {{ .Values.koelPreferences.configmap.name }}
+          defaultMode: {{ .Values.koelPreferences.volume.defaultMode }}
+      {{- end }}
+      {{- if .Values.certificate.pkcsMangler.enabled }}
+      - name: {{ .Values.certificate.pkcsMangler.volume.name }}
+        configMap:
+          name: {{ .Values.certificate.pkcsMangler.configmap.name }}
+          defaultMode: {{ .Values.certificate.pkcsMangler.volume.defaultMode }}
+      - name: {{ .Values.certificate.pkcsMangler.certificateSecret.volume.name }}
+        secret:
+          secretName: {{ .Values.certificate.pkcsMangler.certificateSecret.name }}
+      {{- end }}
+##### VOLUMES END #####
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

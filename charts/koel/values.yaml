@@ -1,0 +1,308 @@
+# Default values
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# The Image to use for Koel
+
+image:
+  repository: registry.thejohnsons.site/jgesc/koel
+  tag: v5.1.0
+  pullPolicy: IfNotPresent
+
+# Set the timezone of the koel server
+timezone: "UTC"
+
+# add your pod network subnet to the `List of IP addresses and networks that are allowed without auth`
+# This will override the manual settings, so only use this if you will not need to change it manually.
+# This list will be automatically converted to a command seperated string when passed to the container.
+# You would specify this when using helm CLI with --set allowedNetworks="{127.0.0.1,10.54.2.0/24}"
+# allowedNetworks:
+#   -   127.0.0.1
+#   -   10.54.2.0/24
+
+# Override public http port
+# Default is 80
+publicHttpPort: 80
+
+# Override public https port
+# Default is 443
+publicHttpsPort: 443
+
+# Override http port
+# Default is 80
+httpPort: 80
+
+# Override https port
+# Default is 443
+httpsPort: 443
+
+# Set the username of the webserver user
+# Default is www-data
+apacheRunUser: www-data
+
+# Set the default group of the webserver user
+# Default is www-data
+apacheRunGroup: www-data
+
+# Set the address to access koel with 
+# should be something like http(s)://koel.example.com
+appUrl: https://koel.example.com
+
+# Set the application environment
+# Default is production
+appEnv: production
+
+# Set the database connection driver to use
+# mysql, pgsql, sqlite are valid Laravel drivers
+# Default is mysql
+dbConnection: mysql
+
+# Set the database name
+# if using sqlite must be the absolute path such as /data/koel.sqlite
+# Default is koel
+dbDatabase: koel
+
+# Set the database username
+# Default is koel
+dbUsername: koel
+
+# Set the database password
+# Default is changeme
+dbPassword: changeme
+
+# Set the database root or superuser password
+# Default is changeme
+dbRootPassword: changeme
+
+# Set the admin display name
+# Default is Admin
+adminName: Admin
+
+# Set the admin email address
+# Defailt is admin@example.com
+adminEmail: admin@example.com
+
+# Set the admin password
+# Default is changeme
+adminPassword: changeme
+
+# You can add as many Additional ENV variables here
+# The following is the same as --set extraEnv.FOO="bar"
+# extraEnv:
+#   FOO: "bar"
+
+# upgrade strategy type (e.g. Recreate or RollingUpdate)
+strategyType: Recreate
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext: {}
+# podSecurityContext:
+#   runAsUser: 568
+#   runAsGroup: 568
+#   fsGroup: 568
+
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+serviceTCP:
+  type: ClusterIP
+  defaultProtocol: "http"
+  ports:
+    http: 80
+    https: 443
+  ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+  ##
+  # nodePort:
+  ## Provide any additional annotations which may be required. This can be used to
+  ## set the LoadBalancer service type to internal only.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+  ##
+  annotations: {}
+  # metallb.universe.tf/allow-shared-ip: koel-svc
+  labels: {}
+  ## Use loadBalancerIP to request a specific static IP,
+  ## otherwise leave blank
+  ##
+  loadBalancerIP:
+  # loadBalancerSourceRanges: []
+  ## Set the externalTrafficPolicy in the Service to either Cluster or Local
+  # externalTrafficPolicy: Cluster
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+koelPreferences:
+  # Enable container init script that customizes Emby's system.xml config file
+  enabled: false
+  configmap:
+    labels: {}
+    annotations: {}
+    # Right now you can't really change this, additionally the configmap data is
+    # not configurable.
+    name: 41-koel-preferences
+  volume:
+    name: 41-koel-preferences
+    defaultMode: 493  # 0755 in octal permission notation
+    # Using mountPath & SubPath allow you to volume mount a configMap AS A FILE
+    # Unfortunately this also means that updates to the configMap are not automatically
+    # propagated to the file contents. But it's better than replacing the entire
+    # /etc/cont-init.d/ directory which is the "normal" behavior when doing volume
+    # mounts.
+    mountPath: /etc/cont-init.d/41-koel-preferences
+    subPath: 41-koel-preferences
+
+hostNetwork: false
+
+persistence:
+  music:
+    # We want to enable a music pvc
+    enabled: true
+    # Optionally specify claimName to manually override the PVC to be used for
+    # the music directory. If claimName is specified, storageClass and size are
+    # ignored.
+    ## claimName: "koel-music-pvc"
+    # Optionally specify a storage class to be used for the music directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+    # subPath: some-subpath
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 100Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+
+  covers:
+    # We want to enable a covers pvc
+    enabled: true
+    # Optionally specify claimName to manually override the PVC to be used for
+    # the covers directory. If claimName is specified, storageClass and size
+    # are ignored.
+    ## claimName: "koel-covers-pvc"
+    # Optionally specify a storage class to be used for the covers directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    # subPath: some-subpath
+    storageClass: ""
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 20Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+
+  data:
+    # We want to enable a data pvc (use for sqlite database perhaps)
+    enabled: false
+    # Optionally specify claimName to manually override the PVC to be used for
+    # the datac directory. If claimName is specified, storageClass and size are
+    # ignored.
+    ## claimName: "koel-data-pvc"
+    # Optionally specify a storage class to be used for the data directory.
+    # If not specified and claimName is not specified, the default storage
+    # class will be used.
+    storageClass: ""
+    # subPath: some-subpath
+    # The requested size of the volume to be used when creating a
+    # PersistentVolumeClaim.
+    size: 20Gi
+    # Access mode for this volume
+    accessMode: ReadWriteOnce
+
+  extraMounts: []
+  ## Include additional claims that can be mounted inside the
+  ## pod. This is useful if you wish to use different paths with categories
+  ## Claim will me mounted as /{mountPath} if specified. If no {mountPath} is given,
+  ## mountPath will default to {name}
+  # - name: video
+  #   # if claimName is specified the a new volume will mounted, if omitted the mount will be considered to be associated with one of the standard volumes (e.g music, covers).
+  #   # This useful to mount data to a different subPath
+  #   claimName: optional-claim
+  #   mountPath: /mnt/path/in/pod
+  #   subPath: optional/sub/path
+  #
+  ## Example using an existing NFS filer directly. Below the 'volume' key all volume types are allowed (eg. nfs, iscsi, hostPath).
+  ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volume-v1-core for further information
+  # - name: example2
+  #   mountPath: mnt/example2
+  #   volume:
+  #     nfs:
+  #       server: <nfs server fqdn or ip>
+  #       path: <nfs export path>
+  #       readOnly: true
+
+# Certificate for Koel
+certificate: {}
+
+# Probes configuration
+probes:
+  liveness:
+    enabled: true
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 5
+    periodSeconds: 10
+  readiness:
+    enabled: true
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 5
+    periodSeconds: 10
+  startup:
+    enabled: true
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 5
+    failureThreshold: 30
+    periodSeconds: 10
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+deploymentAnnotations: {}
+
+proxy:
+  # This allows to set a proxy environment variable, which Koel uses to fetch assets like album covers
+  enabled: false
+  # http: "http://proxy:8080"
+  # https: "https://proxy:8080"
+  # noproxy: "localhost,127.0.0.1,10.96.0.0/12,10.244.0.0/12"

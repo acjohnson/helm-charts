@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: v5.1.0
+description: Koel
+name: koel
+version: 0.0.1
+keywords:
+  - koel
+home: https://koel.dev/
+icon: https://koel.dev/_nuxt/img/logo.f9bf992.svg
+sources:
+  - https://github.com/acjohnson/helm-charts/tree/master/charts/koel
+  - https://github.com/jgesc/docker_koel
+  - https://github.com/koel/koel
+maintainers:
+  - name: acjohnson
+    email: acjohnson@pcdomain.com
