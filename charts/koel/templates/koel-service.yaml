@@ -1,0 +1,57 @@
+{{- if .Values.components.koel }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+{{- if .Values.koel.service.labels }}
+{{ toYaml .Values.koel.service.labels | indent 4 }}
+{{- end }}
+{{- with .Values.koel.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if (or (eq .Values.koel.service.type "ClusterIP") (empty .Values.koel.service.type)) }}
+  type: ClusterIP
+  {{- if .Values.koel.service.clusterIP }}
+  clusterIP: {{ .Values.koel.service.clusterIP }}
+  {{end}}
+{{- else if eq .Values.koel.service.type "LoadBalancer" }}
+  type: {{ .Values.koel.service.type }}
+  {{- if .Values.koel.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.koel.service.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.koel.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.koel.service.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.koel.service.type }}
+{{- end }}
+{{- if .Values.koel.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.koel.service.externalIPs | indent 4 }}
+{{- end }}
+  {{- if .Values.koel.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.koel.service.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - name: koel-http
+      port: {{ .Values.koel.service.ports.http }}
+      protocol: TCP
+      targetPort: koel-http
+{{ if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
+      nodePort: {{.Values.koel.service.nodePort}}
+{{ end }}
+    - name: koel-https
+      port: {{ .Values.koel.service.ports.https }}
+      protocol: TCP
+      targetPort: koel-https
+{{ if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
+      nodePort: {{.Values.koel.service.nodePort}}
+{{ end }}
+  selector:
+    {{- include "koel.selectorLabels" . | nindent 4 }}
+{{- end }}

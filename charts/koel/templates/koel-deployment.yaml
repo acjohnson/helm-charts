@@ -1,9 +1,12 @@
+{{- if .Values.components.koel }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "koel.fullname" . }}
+  name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+  namespace: {{ template "koel.namespace" . }}
   labels:
     {{- include "koel.labels" . | nindent 4 }}
+    component: {{ .Values.koel.component }}
   {{- if .Values.deploymentAnnotations }}
   annotations:
     {{- range $key, $value := .Values.deploymentAnnotations }}
@@ -11,20 +14,25 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.koel.replicaCount }}
   revisionHistoryLimit: 3
   strategy:
     type: {{ .Values.strategyType }}
   selector:
     matchLabels:
       {{- include "koel.selectorLabels" . | nindent 6 }}
+      component: {{ .Values.koel.component }}
   template:
     metadata:
       labels:
         {{- include "koel.selectorLabels" . | nindent 8 }}
+        component: {{ .Values.koel.component }}
       {{- if .Values.podAnnotations }}
       annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- if .Values.koel.restartPodsOnConfigMapChange }}
+        checksum/config: {{ include (print $.Template.BasePath "/koel-configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- range $key, $value := .Values.koel.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
       {{- end }}
@@ -40,11 +48,11 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
+          imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
           ports:
           - name: koel-http
             protocol: TCP
@@ -63,7 +71,9 @@ spec:
             value: "{{ .Values.dbConnection }}"
   {{- if not eq .Values.dbConnection "sqlite" }}
           - name: "DB_HOST"
-            value: "{{ template "koel.fullname" . }}-database"
+            value: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}"
+          - name: "DB_PORT"
+            value: "{{ .Values.dbPort }}"
           - name: "DB_USERNAME"
             value: "{{ .Values.dbUsername }}"
           - name: "DB_PASSWORD"
@@ -100,47 +110,42 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: TRANSCODE_PVC
-  {{- if .Values.persistence.transcode.claimName }}
-            value: "{{ .Values.persistence.transcode.claimName }}"
-  {{- else }}
-            value: "{{ template "koel.fullname" . }}-transcode"
-  {{- end }}
-  {{- if .Values.persistence.music.enabled }}
+  {{- if .Values.koel.persistence.music.enabled }}
           - name: MUSIC_PVC
-  {{- if .Values.persistence.music.claimName }}
-            value: "{{ .Values.persistence.music.claimName }}"
+  {{- if .Values.koel.persistence.music.claimName }}
+            value: "{{ .Values.koel.persistence.music.claimName }}"
   {{- else }}
-            value: "{{ template "koel.fullname" . }}-music"
+            value: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}-music"
   {{- end }}
   {{- end }}
-  {{- if .Values.persistence.covers.enabled }}
+  {{- if .Values.koel.persistence.covers.enabled }}
           - name: COVERS_PVC
-  {{- if .Values.persistence.covers.claimName }}
-            value: "{{ .Values.persistence.covers.claimName }}"
+  {{- if .Values.koel.persistence.covers.claimName }}
+            value: "{{ .Values.koel.persistence.covers.claimName }}"
   {{- else }}
-            value: "{{ template "koel.fullname" . }}-covers"
+            value: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers"
   {{- end }}
   {{- end }}
-  {{- if .Values.persistence.data.enabled }}
+  {{- if .Values.koel.persistence.data.enabled }}
           - name: DATA_PVC
-  {{- if .Values.persistence.data.claimName }}
-            value: "{{ .Values.persistence.data.claimName }}"
+  {{- if .Values.koel.persistence.data.claimName }}
+            value: "{{ .Values.koel.persistence.data.claimName }}"
   {{- else }}
-            value: "{{ template "koel.fullname" . }}-data"
+            value: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}-data"
   {{- end }}
   {{- end }}
-  {{- if .Values.proxy.enabled }}
-  {{- if .Values.proxy.http }}
+  {{- if .Values.koel.proxy.enabled }}
+  {{- if .Values.koel.proxy.http }}
           - name: "HTTP_PROXY"
-            value: "{{ .Values.proxy.http }}"
+            value: "{{ .Values.koel.proxy.http }}"
   {{- end }}
-  {{- if .Values.proxy.https }}
+  {{- if .Values.koel.proxy.https }}
           - name: "HTTPS_PROXY"
-            value: "{{ .Values.proxy.https }}"
+            value: "{{ .Values.koel.proxy.https }}"
   {{- end }}
-  {{- if .Values.proxy.noproxy }}
+  {{- if .Values.koel.proxy.noproxy }}
           - name: "NO_PROXY"
-            value: "{{ .Values.proxy.noproxy }}"
+            value: "{{ .Values.koel.proxy.noproxy }}"
   {{- end }}
   {{- end }}
   {{- if .Values.publicHttpPort }}
@@ -156,41 +161,41 @@ spec:
           - name: {{ $key }}
             value: "{{ $value }}"
 {{- end }}
-          {{- if .Values.probes.readiness.enabled }}
+          {{- if .Values.koel.probes.readiness.enabled }}
           readinessProbe:
-            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.koel.probes.readiness "enabled" | toYaml | nindent 12 }}
           {{- end }}
-          {{- if .Values.probes.liveness.enabled }}
+          {{- if .Values.koel.probes.liveness.enabled }}
           livenessProbe:
-            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.koel.probes.liveness "enabled" | toYaml | nindent 12 }}
           {{- end }}
-          {{- if .Values.probes.startup.enabled }}
+          {{- if .Values.koel.probes.startup.enabled }}
           startupProbe:
-            {{- omit .Values.probes.startup "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.koel.probes.startup "enabled" | toYaml | nindent 12 }}
           {{- end }}
           volumeMounts:
-          {{- if .Values.persistence.music.enabled }}
+          {{- if .Values.koel.persistence.music.enabled }}
           - name: music
             mountPath: /music
-          {{- if .Values.persistence.music.subPath }}
-            subPath: {{ .Values.persistence.music.subPath }}
+          {{- if .Values.koel.persistence.music.subPath }}
+            subPath: {{ .Values.koel.persistence.music.subPath }}
           {{ end }}
           {{ end }}
-          {{- if .Values.persistence.covers.enabled }}
+          {{- if .Values.koel.persistence.covers.enabled }}
           - name: covers
             mountPath: /var/www/html/public/img/covers
-          {{- if .Values.persistence.covers.subPath }}
-            subPath: {{ .Values.persistence.covers.subPath }}
+          {{- if .Values.koel.persistence.covers.subPath }}
+            subPath: {{ .Values.koel.persistence.covers.subPath }}
           {{ end }}
           {{ end }}
-          {{- if .Values.persistence.data.enabled }}
+          {{- if .Values.koel.persistence.data.enabled }}
           - name: data
             mountPath: /data
-          {{- if .Values.persistence.data.subPath }}
-            subPath: {{ .Values.persistence.data.subPath }}
+          {{- if .Values.koel.persistence.data.subPath }}
+            subPath: {{ .Values.koel.persistence.data.subPath }}
           {{ end }}
           {{ end }}
-          {{-  range .Values.persistence.extraMounts }}
+          {{-  range .Values.koel.persistence.extraMounts }}
           {{- if .mountPath }}
           - mountPath: /{{ .mountPath }}
           {{- else }}
@@ -215,34 +220,34 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
 ##### VOLUMES START #####
       volumes:
-{{- if .Values.persistence.music.enabled }}
+{{- if .Values.koel.persistence.music.enabled }}
       - name: music
         persistentVolumeClaim:
-  {{- if .Values.persistence.music.claimName }}
-          claimName: "{{ .Values.persistence.music.claimName }}"
+  {{- if .Values.koel.persistence.music.claimName }}
+          claimName: "{{ .Values.koel.persistence.music.claimName }}"
   {{- else }}
           claimName: "{{ template "koel.fullname" . }}-music"
   {{- end }}
 {{- end }}
-{{- if .Values.persistence.covers.enabled }}
+{{- if .Values.koel.persistence.covers.enabled }}
       - name: covers
         persistentVolumeClaim:
-  {{- if .Values.persistence.covers.claimName }}
-          claimName: "{{ .Values.persistence.covers.claimName }}"
+  {{- if .Values.koel.persistence.covers.claimName }}
+          claimName: "{{ .Values.koel.persistence.covers.claimName }}"
   {{- else }}
           claimName: "{{ template "koel.fullname" . }}-covers"
   {{- end }}
 {{- end }}
-{{- if .Values.persistence.data.enabled }}
+{{- if .Values.koel.persistence.data.enabled }}
       - name: data
         persistentVolumeClaim:
-  {{- if .Values.persistence.data.claimName }}
-          claimName: "{{ .Values.persistence.data.claimName }}"
+  {{- if .Values.koel.persistence.data.claimName }}
+          claimName: "{{ .Values.koel.persistence.data.claimName }}"
   {{- else }}
           claimName: "{{ template "koel.fullname" . }}-data"
   {{- end }}
 {{- end }}
-{{- range .Values.persistence.extraMounts }}
+{{- range .Values.koel.persistence.extraMounts }}
   {{- if .claimName }}
       - name: {{ .name }}
         persistentVolumeClaim:
@@ -252,10 +257,6 @@ spec:
         {{- toYaml .volume | nindent 8 }}
   {{- end }}
 {{- end }}
-      - name: shared
-        emptyDir: {}
-      - name: shared-logs
-        emptyDir: {}
       {{- if .Values.koelPreferences.enabled }}
       - name: {{ .Values.koelPreferences.volume.name }}
         configMap:
@@ -284,3 +285,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+{{- end }}
