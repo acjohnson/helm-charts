@@ -7,9 +7,9 @@ metadata:
   labels:
     {{- include "koel.labels" . | nindent 4 }}
     component: {{ .Values.koel.component }}
-  {{- if .Values.deploymentAnnotations }}
+  {{- if .Values.koel.deploymentAnnotations }}
   annotations:
-    {{- range $key, $value := .Values.deploymentAnnotations }}
+    {{- range $key, $value := .Values.koel.deploymentAnnotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
   {{- end }}
@@ -27,7 +27,7 @@ spec:
       labels:
         {{- include "koel.selectorLabels" . | nindent 8 }}
         component: {{ .Values.koel.component }}
-      {{- if .Values.podAnnotations }}
+      {{- if .Values.koel.podAnnotations }}
       annotations:
         {{- if .Values.koel.restartPodsOnConfigMapChange }}
         checksum/config: {{ include (print $.Template.BasePath "/koel-configmap.yaml") . | sha256sum }}
@@ -46,11 +46,11 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
     {{- end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.koel.podSecurityContext | nindent 12 }}
           image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
           imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
           ports:

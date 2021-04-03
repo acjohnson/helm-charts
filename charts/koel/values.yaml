@@ -119,13 +119,6 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-podSecurityContext: {}
-# podSecurityContext:
-#   runAsUser: 568
-#   runAsGroup: 568
-#   fsGroup: 568
-
-
 securityContext: {}
   # capabilities:
   #   drop:
@@ -151,6 +144,12 @@ koel:
   restartPodsOnConfigMapChange: false
   # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
+
+  podSecurityContext: {}
+  # podSecurityContext:
+  #   runAsUser: 568
+  #   runAsGroup: 568
+  #   fsGroup: 568
 
   ## koel service
   ## templates/koel-service.yaml
@@ -320,17 +319,26 @@ database:
   component: database
   # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
+
+  podSecurityContext: {}
+  # podSecurityContext:
+  #   runAsUser: 568
+  #   runAsGroup: 568
+  #   fsGroup: 568
+
   port: 3306
   db_name: koel
   db_root_password: changeme
   db_user:
     user: koel
     password: changeme
-  volumes:
-    # use a persistent volume or emptyDir
-    persistence: true
+
+  persistence:
     data:
+      # We want to enable a data pvc
+      enabled: true
       name: data
+      mountPath: /var/lib/mysql
       size: 50Gi
       local_storage: true
       accessMode: ReadWriteOnce
@@ -368,3 +376,4 @@ database:
   ##
   service:
     annotations: {}
+  deploymentAnnotations: {}
