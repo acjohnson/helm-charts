@@ -1,21 +1,19 @@
-{{- if .Values.components.database }}
-{{- if .Values.database.persistence.data.enabled }}
+{{- if (and .Values.components.database .Values.database.persistence.data.enabled) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
+  name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
   namespace: {{ template "koel.namespace" . }}
 spec:
   resources:
     requests:
       storage: {{ .Values.koel.persistence.data.size }}
   accessModes: [ "{{ .Values.koel.persistence.data.accessMode }}" ]
-{{- if .Values.database.persistence.data.storageClassName }}
-  storageClassName: "{{ .Values.database.persistence.data.storageClassName }}"
-{{- else if and (not (and .Values.volumes.local_storage .Values.database.persistence.data.local_storage)) .Values.database.persistence.data.storageClass }}
-  storageClassName: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
-{{- else if and .Values.volumes.local_storage .Values.koel.persistence.data.local_storage }}
+{{- if .Values.database.persistence.data.storageClass }}
+  storageClassName: "{{ .Values.database.persistence.data.storageClass }}"
+{{- else if and (not .Values.database.persistence.data.local_storage .Values.database.persistence.data.storageClass) }}
+  storageClassName: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+{{- else if .Values.database.persistence.data.local_storage }}
   storageClassName: "local-storage"
-{{- end }}
 {{- end }}
 {{- end }}

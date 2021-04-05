@@ -2,10 +2,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
   namespace: {{ template "koel.namespace" . }}
   labels:
     {{- include "koel.labels" . | nindent 4 }}
+    component: {{ .Values.koel.component }}
 {{- if .Values.koel.service.labels }}
 {{ toYaml .Values.koel.service.labels | indent 4 }}
 {{- end }}
@@ -43,16 +44,16 @@ spec:
       port: {{ .Values.koel.service.ports.http }}
       protocol: TCP
       targetPort: koel-http
-{{ if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
+{{- if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
       nodePort: {{.Values.koel.service.nodePort}}
-{{ end }}
+{{- end }}
     - name: koel-https
       port: {{ .Values.koel.service.ports.https }}
       protocol: TCP
       targetPort: koel-https
-{{ if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
+{{- if (and (eq .Values.koel.service.type "NodePort") (not (empty .Values.koel.service.nodePort))) }}
       nodePort: {{.Values.koel.service.nodePort}}
-{{ end }}
+{{- end }}
   selector:
     {{- include "koel.selectorLabels" . | nindent 4 }}
 {{- end }}

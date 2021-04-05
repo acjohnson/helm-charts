@@ -43,6 +43,8 @@ Common labels
 */}}
 {{- define "koel.labels" -}}
 helm.sh/chart: {{ include "koel.chart" . }}
+app: {{ template "koel.name" . }}
+release: {{ .Release.Name }}
 {{ include "koel.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
@@ -56,17 +58,6 @@ Selector labels
 {{- define "koel.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "koel.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "koel.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "koel.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
 {{- end -}}
 
 {{/*

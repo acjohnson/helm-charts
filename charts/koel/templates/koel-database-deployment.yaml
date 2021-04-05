@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+  name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}
   namespace: {{ template "koel.namespace" . }}
   labels:
     {{- include "koel.labels" . | nindent 4 }}
@@ -54,11 +54,11 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.database.gracePeriod }}
       containers:
-        - name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
-          securityContext:
-            {{- toYaml .Values.database.podSecurityContext | nindent 12 }}
-          image: "{{ .Values.images.database.repository }}:{{ .Values.images.database.tag }}"
-          imagePullPolicy: {{ .Values.images.database.pullPolicy }}
+      - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
+        securityContext:
+          {{- toYaml .Values.database.podSecurityContext | nindent 12 }}
+        image: "{{ .Values.images.database.repository }}:{{ .Values.images.database.tag }}"
+        imagePullPolicy: {{ .Values.images.database.pullPolicy }}
         {{- if .Values.database.resources }}
         resources:
 {{ toYaml .Values.database.resources | indent 10 }}
@@ -70,22 +70,22 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret"
+              name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret
               key: MYSQL_ROOT_PASSWORD
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret"
+              name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret
               key: MYSQL_PASSWORD
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret"
+              name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret
               key: MYSQL_DATABASE
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret"
+              name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-secret
               key: MYSQL_USER
         {{- if .Values.database.probe.liveness.enabled }}
         livenessProbe:
@@ -100,16 +100,16 @@ spec:
           periodSeconds: {{ .Values.database.probe.liveness.periodSeconds }}
         {{- end }}
         volumeMounts:
-        - name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
-          mountPath: "{{ .Values.database.persistence.data.mountPath }}"
+          - name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+            mountPath: "{{ .Values.database.persistence.data.mountPath }}"
       volumes:
     {{- if not .Values.database.persistence.data.enabled }}
-      - name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
-        emptyDir: {}
+        - name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+          emptyDir: {}
     {{- end }}
     {{- if .Values.database.persistence.data.enabled }}
-      - name: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
-        persistentVolumeClaim:
-          claimName: "{{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}"
+        - name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+          persistentVolumeClaim:
+            claimName: {{ template "koel.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
     {{- end }}
 {{- end }}

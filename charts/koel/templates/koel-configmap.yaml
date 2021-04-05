@@ -1,42 +1,22 @@
-{{- if .Values.koelPreferences.enabled -}}
+{{- if .Values.components.koel }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.koelPreferences.configmap.name }}
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
+  namespace: {{ template "koel.namespace" . }}
   labels:
     {{- include "koel.labels" . | nindent 4 }}
-{{- if .Values.koelPreferences.configmap.labels }}
-{{ toYaml .Values.koelPreferences.configmap.labels | indent 4 }}
-{{- end }}
-{{- with .Values.koelPreferences.configmap.annotations }}
-  annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
-
+    component: {{ .Values.koel.component }}
 data:
-# At some point figure out how to use a value/Variable here to be able to specify
-# a different file or something.
-{{ (tpl (.Files.Glob "configs/41-koel-preferences").AsConfig . ) | indent 2 }}
-{{- end -}}
-
-{{- if .Values.certificate.pkcsMangler.enabled }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Values.certificate.pkcsMangler.configmap.name }}
-  labels:
-    {{- include "koel.labels" . | nindent 4 }}
-{{- if .Values.certificate.pkcsMangler.configmap.labels }}
-{{ toYaml .Values.certificate.pkcsMangler.configmap.labels | indent 4 }}
+  env: |
+    FORCE_HTTPS={{ .Values.forceHttps }}
+    STREAMING_METHOD={{ .Values.streamingMethod }}
+    LOG_CHANNEL={{ .Values.logChannel }}
+    APP_URL={{ .Values.appUrl }}
+    APP_ENV={{ .Values.appEnv }}
+    APP_KEY={{ .Values.appKey }}
+    DEFAULT_ADMIN_NAME={{ .Values.adminName }}
+    DEFAULT_ADMIN_EMAIL={{ .Values.adminEmail }}
+    DEFAULT_ADMIN_PASSWORD={{ .Values.adminPassword }}
+    MEDIA_PATH={{ .Values.mediaPath }}
 {{- end }}
-{{- with .Values.certificate.pkcsMangler.configmap.annotations }}
-  annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
-
-data:
-# At some point figure out how to use a value/Variable here to be able to specify
-# a different file or something.
-{{ (tpl (.Files.Glob "configs/42-pkcs-mangler").AsConfig . ) | indent 2 }}
-{{- end -}}

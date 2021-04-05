@@ -1,4 +1,7 @@
 {{- if .Values.components.koel }}
+{{- $fullName := include "koel.fullname" . -}}
+{{- $dummy := set . "component" .Values.koel.component }}
+{{- $component := .component -}}
 {{- if .Values.koel.ingress.enabled -}}
 {{- if eq .Values.koel.service.defaultProtocol "http" -}}
 {{- $dummy := set . "svcPort" .Values.koel.service.ports.http }}
@@ -14,7 +17,8 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
+  namespace: {{ template "koel.namespace" . }}
   labels:
     {{- include "koel.labels" . | nindent 4 }}
   {{- with .Values.koel.ingress.annotations }}
@@ -39,7 +43,7 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: "{{ template "koel.fullname" . }}-{{ .Values.koel.component }}"
+              serviceName: {{ $fullName }}-{{ $component }}
               servicePort: {{ $svcPort }}
   {{- end }}
 {{- end }}

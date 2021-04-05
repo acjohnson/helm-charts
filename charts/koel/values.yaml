@@ -1,3 +1,4 @@
+---
 # Default values
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -57,6 +58,10 @@ httpPort: 80
 # Default is 443
 httpsPort: 443
 
+# Force https
+# Default is true
+forceHttps: true
+
 # Set the username of the webserver user
 # Default is www-data
 apacheRunUser: www-data
@@ -65,13 +70,30 @@ apacheRunUser: www-data
 # Default is www-data
 apacheRunGroup: www-data
 
-# Set the address to access koel with 
+# Set the address to access koel with
 # should be something like http(s)://koel.example.com
 appUrl: https://koel.example.com
 
 # Set the application environment
 # Default is production
 appEnv: production
+
+# Set the application key
+# This is a base64 encoded key, one can be generated with php artisan key:generate --show
+# Default is base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
+appKey: base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
+
+# Set the streaming method
+# Default is x-sendfile
+streamingMethod: x-sendfile
+
+# Set the media path
+# Default is /music
+mediaPath: /music
+
+# Set the log channel
+# Default is stderr
+logChannel: stderr
 
 # Set the database connection driver to use
 # mysql, pgsql, sqlite are valid Laravel drivers
@@ -87,7 +109,7 @@ dbDatabase: koel
 # Default is koel
 dbUsername: koel
 
-# Set the database password
+# Set the database password (if pgsql dbRootPassword is used instead)
 # Default is changeme
 dbPassword: changeme
 
@@ -116,6 +138,7 @@ adminPassword: changeme
 strategyType: Recreate
 
 imagePullSecrets: []
+# name: regcred
 nameOverride: ""
 fullnameOverride: ""
 
@@ -126,9 +149,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-# Certificate for Koel
-certificate: {}
 
 hostNetwork: false
 
@@ -268,26 +288,19 @@ koel:
   probes:
     liveness:
       enabled: true
-      httpGet:
-        path: /
-        port: 80
-      failureThreshold: 5
-      periodSeconds: 10
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
     readiness:
-      enabled: true
-      httpGet:
-        path: /
-        port: 80
-      failureThreshold: 5
-      periodSeconds: 10
+      enabled: false
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
     startup:
-      enabled: true
-      httpGet:
-        path: /
-        port: 80
-      initialDelaySeconds: 5
+      enabled: false
       failureThreshold: 30
-      periodSeconds: 10
+      initialDelaySeconds: 60
+      periodSeconds: 60
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -327,11 +340,6 @@ database:
   #   fsGroup: 568
 
   port: 3306
-  db_name: koel
-  db_root_password: changeme
-  db_user:
-    user: koel
-    password: changeme
 
   persistence:
     data:
@@ -340,19 +348,12 @@ database:
       name: data
       mountPath: /var/lib/mysql
       size: 50Gi
-      local_storage: true
+      local_storage: false
       accessMode: ReadWriteOnce
       ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
       ##
-      # storageClassName: existent-storage-class
-      #
-      ## Instead if you want to create a new storage class define it below
-      ## If left undefined no storage class will be defined along with PVC
-      ##
-      # storageClass:
-        # type: pd-standard
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
+      storageClass: ""
+
   probe:
     liveness:
       enabled: true
