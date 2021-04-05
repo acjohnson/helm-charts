@@ -53,7 +53,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 
 ```console
 helm install koel \
-  --set env.TZ="America/New York" \
+  --set timezone="America/New York" \
     thejohnsons/koel
 ```
 
