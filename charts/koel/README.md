@@ -1,6 +1,6 @@
 # koel
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: 4.5.4.0](https://img.shields.io/badge/AppVersion-4.5.4.0-informational?style=flat-square)
+![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: v5.1.0](https://img.shields.io/badge/AppVersion-v5.1.0-informational?style=flat-square)
 
 Koel
 
@@ -9,7 +9,8 @@ Koel
 ## Source Code
 
 * <https://github.com/acjohnson/helm-charts/tree/master/charts/koel>
-* <https://hub.docker.com/r/koel/koelserver/>
+* <https://github.com/jgesc/docker_koel>
+* <https://github.com/koel/koel>
 
 ## Requirements
 
@@ -70,114 +71,111 @@ N/A
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` |  |
-| certificate.pkcsMangler.certificateSecret.crtName | string | `"tls.crt"` |  |
-| certificate.pkcsMangler.certificateSecret.keyName | string | `"tls.key"` |  |
-| certificate.pkcsMangler.certificateSecret.name | string | `""` |  |
-| certificate.pkcsMangler.certificateSecret.volume.mountPath | string | `"/etc/koel-certs"` |  |
-| certificate.pkcsMangler.certificateSecret.volume.name | string | `"koel-certs"` |  |
-| certificate.pkcsMangler.configmap.annotations | object | `{}` |  |
-| certificate.pkcsMangler.configmap.labels | object | `{}` |  |
-| certificate.pkcsMangler.configmap.name | string | `"42-pkcs-mangler"` |  |
-| certificate.pkcsMangler.enabled | bool | `false` |  |
-| certificate.pkcsMangler.image.repository | string | `"tlsprint/openssl"` |  |
-| certificate.pkcsMangler.image.tag | string | `"1.1.1f"` |  |
-| certificate.pkcsMangler.pfxInContainerPath | string | `"/config/koel.pfx"` |  |
-| certificate.pkcsMangler.pfxPassword.annotations | object | `{}` |  |
-| certificate.pkcsMangler.pfxPassword.labels | object | `{}` |  |
-| certificate.pkcsMangler.pfxPassword.passwordKey | string | `"pfx-password"` |  |
-| certificate.pkcsMangler.pfxPassword.secretName | string | `"koel-server-pfx-password"` |  |
-| certificate.pkcsMangler.pfxPassword.value | string | `"setpassword"` |  |
-| certificate.pkcsMangler.volume.defaultMode | int | `493` |  |
-| certificate.pkcsMangler.volume.mountPath | string | `"/etc/cont-init.d/42-pkcs-mangler"` |  |
-| certificate.pkcsMangler.volume.name | string | `"42-pkcs-mangler"` |  |
-| certificate.pkcsMangler.volume.subPath | string | `"42-pkcs-mangler"` |  |
-| changeConfigDirOwnership | bool | `true` |  |
-| deploymentAnnotations | object | `{}` |  |
-| dnsExternalDomain | string | `"koel.example.com"` |  |
-| koelGid | int | `2` |  |
-| koelPreferences.configmap.annotations | object | `{}` |  |
-| koelPreferences.configmap.labels | object | `{}` |  |
-| koelPreferences.configmap.name | string | `"41-koel-preferences"` |  |
-| koelPreferences.enabled | bool | `false` |  |
-| koelPreferences.volume.defaultMode | int | `493` |  |
-| koelPreferences.volume.mountPath | string | `"/etc/cont-init.d/41-koel-preferences"` |  |
-| koelPreferences.volume.name | string | `"41-koel-preferences"` |  |
-| koelPreferences.volume.subPath | string | `"41-koel-preferences"` |  |
-| koelUid | int | `2` |  |
-| enableHttps | bool | `false` |  |
-| enableUpnp | bool | `true` |  |
+| adminEmail | string | `"admin@example.com"` |  |
+| adminName | string | `"Admin"` |  |
+| adminPassword | string | `"changeme"` |  |
+| apacheRunGroup | string | `"www-data"` |  |
+| apacheRunUser | string | `"www-data"` |  |
+| appEnv | string | `"production"` |  |
+| appKey | string | `"base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ="` |  |
+| appUrl | string | `"https://koel.example.com"` |  |
+| components.database | bool | `true` |  |
+| components.koel | bool | `true` |  |
+| database.affinity.anti_affinity | bool | `true` |  |
+| database.affinity.type | string | `"requiredDuringSchedulingIgnoredDuringExecution"` |  |
+| database.component | string | `"database"` |  |
+| database.deploymentAnnotations | object | `{}` |  |
+| database.gracePeriod | int | `30` |  |
+| database.persistence.data.accessMode | string | `"ReadWriteOnce"` |  |
+| database.persistence.data.enabled | bool | `true` |  |
+| database.persistence.data.local_storage | bool | `false` |  |
+| database.persistence.data.mountPath | string | `"/var/lib/mysql"` |  |
+| database.persistence.data.name | string | `"data"` |  |
+| database.persistence.data.size | string | `"50Gi"` |  |
+| database.persistence.data.storageClass | string | `""` |  |
+| database.podSecurityContext | object | `{}` |  |
+| database.port | int | `3306` |  |
+| database.probe.liveness.enabled | bool | `true` |  |
+| database.probe.liveness.failureThreshold | int | `5` |  |
+| database.probe.liveness.initialDelaySeconds | int | `30` |  |
+| database.probe.liveness.periodSeconds | int | `60` |  |
+| database.service.annotations | object | `{}` |  |
+| database.tolerations | list | `[]` |  |
+| dbConnection | string | `"mysql"` |  |
+| dbDatabase | string | `"koel"` |  |
+| dbPassword | string | `"changeme"` |  |
+| dbRootPassword | string | `"changeme"` |  |
+| dbUsername | string | `"koel"` |  |
+| forceHttps | bool | `true` |  |
 | fullnameOverride | string | `""` |  |
 | hostNetwork | bool | `false` |  |
-| httpPort | int | `8096` |  |
-| httpsHandledByReverseProxy | bool | `false` |  |
-| httpsPort | int | `8920` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"koel/koelserver"` |  |
-| image.tag | string | `"4.5.4.0"` |  |
+| httpPort | int | `80` |  |
+| httpsPort | int | `443` |  |
 | imagePullSecrets | list | `[]` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0] | string | `"chart-example.local"` |  |
-| ingress.path | string | `"/"` |  |
-| ingress.tls | list | `[]` |  |
-| logging.promtail.enabled | bool | `false` |  |
-| logging.promtail.image.pullPolicy | string | `"IfNotPresent"` |  |
-| logging.promtail.image.repository | string | `"grafana/promtail"` |  |
-| logging.promtail.image.tag | string | `"1.6.0"` |  |
-| logging.promtail.loki.url | string | `"http://loki.logs.svc.cluster.local:3100/loki/api/v1/push"` |  |
+| images.database.pullPolicy | string | `"IfNotPresent"` |  |
+| images.database.repository | string | `"mariadb"` |  |
+| images.database.tag | string | `"10.5.8"` |  |
+| images.koel.pullPolicy | string | `"IfNotPresent"` |  |
+| images.koel.repository | string | `"registry.thejohnsons.site/jgesc/koel"` |  |
+| images.koel.tag | string | `"v5.1.0"` |  |
+| koel.affinity | object | `{}` |  |
+| koel.component | string | `"koel"` |  |
+| koel.deploymentAnnotations | object | `{}` |  |
+| koel.ingress.annotations | object | `{}` |  |
+| koel.ingress.enabled | bool | `false` |  |
+| koel.ingress.hosts[0] | string | `"chart-example.local"` |  |
+| koel.ingress.path | string | `"/"` |  |
+| koel.ingress.tls | list | `[]` |  |
+| koel.persistence.covers.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.covers.enabled | bool | `true` |  |
+| koel.persistence.covers.size | string | `"20Gi"` |  |
+| koel.persistence.covers.storageClass | string | `""` |  |
+| koel.persistence.data.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.data.enabled | bool | `false` |  |
+| koel.persistence.data.size | string | `"20Gi"` |  |
+| koel.persistence.data.storageClass | string | `""` |  |
+| koel.persistence.extraMounts | list | `[]` |  |
+| koel.persistence.music.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.music.enabled | bool | `true` |  |
+| koel.persistence.music.size | string | `"100Gi"` |  |
+| koel.persistence.music.storageClass | string | `""` |  |
+| koel.podAnnotations | object | `{}` |  |
+| koel.podSecurityContext | object | `{}` |  |
+| koel.probes.liveness.enabled | bool | `true` |  |
+| koel.probes.liveness.failureThreshold | int | `10` |  |
+| koel.probes.liveness.initialDelaySeconds | int | `30` |  |
+| koel.probes.liveness.periodSeconds | int | `60` |  |
+| koel.probes.readiness.enabled | bool | `false` |  |
+| koel.probes.readiness.failureThreshold | int | `10` |  |
+| koel.probes.readiness.initialDelaySeconds | int | `30` |  |
+| koel.probes.readiness.periodSeconds | int | `60` |  |
+| koel.probes.startup.enabled | bool | `false` |  |
+| koel.probes.startup.failureThreshold | int | `30` |  |
+| koel.probes.startup.initialDelaySeconds | int | `60` |  |
+| koel.probes.startup.periodSeconds | int | `60` |  |
+| koel.proxy.enabled | bool | `false` |  |
+| koel.replicaCount | int | `1` |  |
+| koel.resources | object | `{}` |  |
+| koel.restartPodsOnConfigMapChange | bool | `false` |  |
+| koel.service.annotations | object | `{}` |  |
+| koel.service.defaultProtocol | string | `"https"` |  |
+| koel.service.labels | object | `{}` |  |
+| koel.service.loadBalancerIP | string | `nil` |  |
+| koel.service.ports.http | int | `80` |  |
+| koel.service.ports.https | int | `443` |  |
+| koel.service.type | string | `"ClusterIP"` |  |
+| koel.tolerations | list | `[]` |  |
+| logChannel | string | `"stderr"` |  |
+| mediaPath | string | `"/music"` |  |
 | nameOverride | string | `""` |  |
-| nodeSelector | object | `{}` |  |
-| persistence.config.accessMode | string | `"ReadWriteOnce"` |  |
-| persistence.config.size | string | `"20Gi"` |  |
-| persistence.config.storageClass | string | `""` |  |
-| persistence.data.accessMode | string | `"ReadWriteOnce"` |  |
-| persistence.data.enabled | bool | `true` |  |
-| persistence.data.size | string | `"40Gi"` |  |
-| persistence.data.storageClass | string | `""` |  |
-| persistence.extraData | list | `[]` |  |
-| persistence.extraMounts | list | `[]` |  |
-| persistence.transcode.accessMode | string | `"ReadWriteOnce"` |  |
-| persistence.transcode.emptyDir.medium | string | `""` |  |
-| persistence.transcode.enabled | bool | `false` |  |
-| persistence.transcode.size | string | `"20Gi"` |  |
-| persistence.transcode.storageClass | string | `""` |  |
-| podAnnotations | object | `{}` |  |
-| podSecurityContext | object | `{}` |  |
-| probes.liveness.enabled | bool | `true` |  |
-| probes.liveness.failureThreshold | int | `5` |  |
-| probes.liveness.httpGet.path | string | `"/"` |  |
-| probes.liveness.httpGet.port | int | `8096` |  |
-| probes.liveness.periodSeconds | int | `10` |  |
-| probes.readiness.enabled | bool | `true` |  |
-| probes.readiness.failureThreshold | int | `5` |  |
-| probes.readiness.httpGet.path | string | `"/"` |  |
-| probes.readiness.httpGet.port | int | `8096` |  |
-| probes.readiness.periodSeconds | int | `10` |  |
-| probes.startup.enabled | bool | `true` |  |
-| probes.startup.failureThreshold | int | `30` |  |
-| probes.startup.httpGet.path | string | `"/"` |  |
-| probes.startup.httpGet.port | int | `8096` |  |
-| probes.startup.initialDelaySeconds | int | `5` |  |
-| probes.startup.periodSeconds | int | `10` |  |
-| proxy.enabled | bool | `false` |  |
-| publicHttpPort | int | `8096` |  |
-| publicHttpsPort | int | `8920` |  |
-| requireHttps | bool | `false` |  |
-| resources | object | `{}` |  |
+| namespace | string | `"koel"` |  |
+| namespaceCreate | bool | `false` |  |
+| publicHttpPort | int | `80` |  |
+| publicHttpsPort | int | `443` |  |
 | securityContext | object | `{}` |  |
-| serviceTCP.annotations | object | `{}` |  |
-| serviceTCP.defaultProtocol | string | `"http"` |  |
-| serviceTCP.labels | object | `{}` |  |
-| serviceTCP.loadBalancerIP | string | `nil` |  |
-| serviceTCP.ports.http | int | `8096` |  |
-| serviceTCP.ports.https | int | `8920` |  |
-| serviceTCP.type | string | `"ClusterIP"` |  |
-| skipSetupWizard | bool | `false` |  |
 | strategyType | string | `"Recreate"` |  |
+| streamingMethod | string | `"x-sendfile"` |  |
 | timezone | string | `"UTC"` |  |
-| tolerations | list | `[]` |  |
-| uiLanguage | string | `"en-us"` |  |
 
 ## Changelog
 
