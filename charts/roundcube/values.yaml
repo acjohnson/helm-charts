@@ -1,0 +1,380 @@
+---
+# Default values
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+### Namespace to deploy Roundcube
+# The namespace to use to deploy the roundcube components, if left empty
+# will default to .Release.Namespace (aka helm --namespace).
+namespace: "roundcube"
+namespaceCreate: false
+
+## Components
+##
+## Control what components of Roundcube to deploy for the cluster
+components:
+  # roundcube
+  roundcube: true
+  # database
+  database: true
+
+## Images
+##
+## Control what images to use for each component
+images:
+  roundcube:
+    repository: registry.thejohnsons.site/debianbased
+    tag: roundcube
+    pullPolicy: IfNotPresent
+  database:
+    repository: mariadb
+    tag: 10.5.8
+    pullPolicy: IfNotPresent
+
+# Set the timezone of the roundcube server
+timezone: "UTC"
+
+# add your pod network subnet to the `List of IP addresses and networks that are allowed without auth`
+# This will override the manual settings, so only use this if you will not need to change it manually.
+# This list will be automatically converted to a command seperated string when passed to the container.
+# You would specify this when using helm CLI with --set allowedNetworks="{127.0.0.1,10.54.2.0/24}"
+# allowedNetworks:
+#   -   127.0.0.1
+#   -   10.54.2.0/24
+
+# Override public http port
+# Default is 80
+publicHttpPort: 80
+
+# Override public https port
+# Default is 443
+publicHttpsPort: 443
+
+# Override http port
+# Default is 80
+httpPort: 80
+
+# Override https port
+# Default is 443
+httpsPort: 443
+
+# Force https
+# Default is true
+forceHttps: true
+
+# Set the username of the webserver user
+# Default is www-data
+apacheRunUser: www-data
+
+# Set the default group of the webserver user
+# Default is www-data
+apacheRunGroup: www-data
+
+# Set the address to access roundcube with
+# should be something like http(s)://roundcube.example.com
+appUrl: https://roundcube.example.com
+
+# Set the application environment
+# Default is production
+appEnv: production
+
+# Set the application key
+# This is a base64 encoded key, one can be generated with php artisan key:generate --show
+# Default is base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
+appKey: base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
+
+# Set the streaming method
+# Default is x-sendfile
+streamingMethod: x-sendfile
+
+# Set the media path
+# Default is /music
+mediaPath: /music
+
+# Set the log channel
+# Default is stderr
+logChannel: stderr
+
+# Set the database connection driver to use
+# mysql, pgsql, sqlite are valid Laravel drivers
+# Default is mysql
+dbConnection: mysql
+
+# Set the database name
+# if using sqlite must be the absolute path such as /data/roundcube.sqlite
+# Default is roundcube
+dbDatabase: roundcube
+
+# Set the database username
+# Default is roundcube
+dbUsername: roundcube
+
+# Set the database password (if pgsql dbRootPassword is used instead)
+# Default is changeme
+dbPassword: changeme
+
+# Set the database root or superuser password
+# Default is changeme
+dbRootPassword: changeme
+
+# Set the admin display name
+# Default is Admin
+adminName: Admin
+
+# Set the admin email address
+# Defailt is admin@example.com
+adminEmail: admin@example.com
+
+# Set the admin password
+# Default is changeme
+adminPassword: changeme
+
+# You can add as many Additional ENV variables here
+# The following is the same as --set extraEnv.FOO="bar"
+# extraEnv:
+#   FOO: "bar"
+
+# upgrade strategy type (e.g. Recreate or RollingUpdate)
+strategyType: Recreate
+
+imagePullSecrets: []
+# name: regcred
+nameOverride: ""
+fullnameOverride: ""
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+hostNetwork: false
+
+## Roundcube
+## templates/roundcube-deployment.yaml
+##
+roundcube:
+  component: roundcube
+  # Increasing the replicaCount for roundcube requires a ReadWriteMany PVC
+  # in order for Roundcube to function properly and have access to the same content on all pods
+  replicaCount: 1
+  # True includes annotation for deployment that contains hash of corresponding configmap, which will cause pods to restart on configmap change
+  restartPodsOnConfigMapChange: false
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+
+  podSecurityContext: {}
+  # podSecurityContext:
+  #   runAsUser: 568
+  #   runAsGroup: 568
+  #   fsGroup: 568
+
+  ## roundcube service
+  ## templates/roundcube-service.yaml
+  service:
+    type: ClusterIP
+    defaultProtocol: "https"
+    ports:
+      http: 80
+      https: 443
+    annotations: {}
+    # metallb.universe.tf/allow-shared-ip: roundcube-svc
+    labels: {}
+    ## Use loadBalancerIP to request a specific static IP,
+    ## otherwise leave blank
+    ##
+    loadBalancerIP:
+    # loadBalancerSourceRanges: []
+    ## Set the externalTrafficPolicy in the Service to either Cluster or Local
+    # externalTrafficPolicy: Cluster
+
+  ## roundcube ingress
+  ## templates/roundcube-ingress.yaml
+  ##
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    path: /
+    hosts:
+      - chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  ## roundcube volumes
+  persistence:
+    music:
+      # We want to enable a music pvc
+      enabled: true
+      # Optionally specify claimName to manually override the PVC to be used for
+      # the music directory. If claimName is specified, storageClass and size are
+      # ignored.
+      ## claimName: "roundcube-music-pvc"
+      # Optionally specify a storage class to be used for the music directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      storageClass: ""
+      # subPath: some-subpath
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 100Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
+
+    covers:
+      # We want to enable a covers pvc
+      enabled: true
+      # Optionally specify claimName to manually override the PVC to be used for
+      # the covers directory. If claimName is specified, storageClass and size
+      # are ignored.
+      ## claimName: "roundcube-covers-pvc"
+      # Optionally specify a storage class to be used for the covers directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      # subPath: some-subpath
+      storageClass: ""
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 20Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
+
+    data:
+      # We want to enable a data pvc (use for sqlite database perhaps)
+      enabled: false
+      # Optionally specify claimName to manually override the PVC to be used for
+      # the datac directory. If claimName is specified, storageClass and size are
+      # ignored.
+      ## claimName: "roundcube-data-pvc"
+      # Optionally specify a storage class to be used for the data directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      storageClass: ""
+      # subPath: some-subpath
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 20Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
+
+    extraMounts: []
+    ## Include additional claims that can be mounted inside the
+    ## pod. This is useful if you wish to use different paths with categories
+    ## Claim will me mounted as /{mountPath} if specified. If no {mountPath} is given,
+    ## mountPath will default to {name}
+    # - name: more-music
+    #   # if claimName is specified the a new volume will mounted, if omitted the mount will be considered to be associated with one of the standard volumes (e.g music, covers).
+    #   # This useful to mount data to a different subPath
+    #   claimName: optional-claim
+    #   mountPath: /mnt/path/in/pod
+    #   subPath: optional/sub/path
+    #
+    ## Example using an existing NFS filer directly. Below the 'volume' key all volume types are allowed (eg. nfs, iscsi, hostPath).
+    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volume-v1-core for further information
+    # - name: example2
+    #   mountPath: mnt/example2
+    #   volume:
+    #     nfs:
+    #       server: <nfs server fqdn or ip>
+    #       path: <nfs export path>
+    #       readOnly: true
+
+  # Probes configuration
+  probes:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
+    readiness:
+      enabled: false
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 60
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 60
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  deploymentAnnotations: {}
+
+  proxy:
+    # This allows to set a proxy environment variable, which Roundcube uses to fetch assets like album covers
+    enabled: false
+    # http: "http://proxy:8080"
+    # https: "https://proxy:8080"
+    # noproxy: "localhost,127.0.0.1,10.96.0.0/12,10.244.0.0/12"
+
+## Roundcube Database
+## templates/database-deployment.yaml
+##
+database:
+  component: database
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+
+  podSecurityContext: {}
+  # podSecurityContext:
+  #   runAsUser: 568
+  #   runAsGroup: 568
+  #   fsGroup: 568
+
+  port: 3306
+
+  persistence:
+    data:
+      # We want to enable a data pvc
+      enabled: true
+      name: data
+      mountPath: /var/lib/mysql
+      size: 50Gi
+      local_storage: false
+      accessMode: ReadWriteOnce
+      ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
+      ##
+      storageClass: ""
+
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 5
+      initialDelaySeconds: 30
+      periodSeconds: 60
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
+  tolerations: []
+  gracePeriod: 30
+  # resources:
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 0.2
+  ## Database service
+  ## templates/database-service.yaml
+  ##
+  service:
+    annotations: {}
+  deploymentAnnotations: {}

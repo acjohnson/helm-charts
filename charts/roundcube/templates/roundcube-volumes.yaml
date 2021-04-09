@@ -1,0 +1,57 @@
+{{- if .Values.components.roundcube }}
+{{- if and (not .Values.roundcube.persistence.music.claimName) .Values.roundcube.persistence.music.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-music
+  namespace: {{ template "roundcube.namespace" . }}
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.roundcube.persistence.music.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.roundcube.persistence.music.size | quote }}
+{{- if .Values.roundcube.persistence.music.storageClass }}
+  storageClassName: {{ .Values.roundcube.persistence.music.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- if and (not .Values.roundcube.persistence.covers.claimName) .Values.roundcube.persistence.covers.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-covers
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.roundcube.persistence.covers.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.roundcube.persistence.covers.size | quote }}
+{{- if .Values.roundcube.persistence.covers.storageClass }}
+  storageClassName: {{ .Values.roundcube.persistence.covers.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- if and (not .Values.roundcube.persistence.data.claimName) .Values.roundcube.persistence.data.enabled  }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-data
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.roundcube.persistence.data.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.roundcube.persistence.data.size | quote }}
+{{- if .Values.roundcube.persistence.data.storageClass }}
+  storageClassName: {{ .Values.roundcube.persistence.data.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

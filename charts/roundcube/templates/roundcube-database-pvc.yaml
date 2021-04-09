@@ -1,0 +1,19 @@
+{{- if (and .Values.components.database .Values.database.persistence.data.enabled) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+  namespace: {{ template "roundcube.namespace" . }}
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.roundcube.persistence.data.size }}
+  accessModes: [ "{{ .Values.roundcube.persistence.data.accessMode }}" ]
+{{- if .Values.database.persistence.data.storageClass }}
+  storageClassName: "{{ .Values.database.persistence.data.storageClass }}"
+{{- else if and (not .Values.database.persistence.data.local_storage .Values.database.persistence.data.storageClass) }}
+  storageClassName: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+{{- else if .Values.database.persistence.data.local_storage }}
+  storageClassName: "local-storage"
+{{- end }}
+{{- end }}

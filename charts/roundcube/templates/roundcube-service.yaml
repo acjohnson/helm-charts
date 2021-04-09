@@ -1,0 +1,59 @@
+{{- if .Values.components.roundcube }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}
+  namespace: {{ template "roundcube.namespace" . }}
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+    component: {{ .Values.roundcube.component }}
+{{- if .Values.roundcube.service.labels }}
+{{ toYaml .Values.roundcube.service.labels | indent 4 }}
+{{- end }}
+{{- with .Values.roundcube.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if (or (eq .Values.roundcube.service.type "ClusterIP") (empty .Values.roundcube.service.type)) }}
+  type: ClusterIP
+  {{- if .Values.roundcube.service.clusterIP }}
+  clusterIP: {{ .Values.roundcube.service.clusterIP }}
+  {{end}}
+{{- else if eq .Values.roundcube.service.type "LoadBalancer" }}
+  type: {{ .Values.roundcube.service.type }}
+  {{- if .Values.roundcube.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.roundcube.service.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.roundcube.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.roundcube.service.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.roundcube.service.type }}
+{{- end }}
+{{- if .Values.roundcube.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.roundcube.service.externalIPs | indent 4 }}
+{{- end }}
+  {{- if .Values.roundcube.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.roundcube.service.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - name: roundcube-http
+      port: {{ .Values.roundcube.service.ports.http }}
+      protocol: TCP
+      targetPort: roundcube-http
+{{- if (and (eq .Values.roundcube.service.type "NodePort") (not (empty .Values.roundcube.service.nodePort))) }}
+      nodePort: {{.Values.roundcube.service.nodePort}}
+{{- end }}
+    - name: roundcube-https
+      port: {{ .Values.roundcube.service.ports.https }}
+      protocol: TCP
+      targetPort: roundcube-https
+{{- if (and (eq .Values.roundcube.service.type "NodePort") (not (empty .Values.roundcube.service.nodePort))) }}
+      nodePort: {{.Values.roundcube.service.nodePort}}
+{{- end }}
+  selector:
+    {{- include "roundcube.selectorLabels" . | nindent 4 }}
+{{- end }}

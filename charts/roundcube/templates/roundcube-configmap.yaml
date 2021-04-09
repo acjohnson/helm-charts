@@ -1,0 +1,22 @@
+{{- if .Values.components.roundcube }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-env
+  namespace: {{ template "roundcube.namespace" . }}
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+    component: {{ .Values.roundcube.component }}
+data:
+  env: |
+    FORCE_HTTPS={{ .Values.forceHttps }}
+    STREAMING_METHOD={{ .Values.streamingMethod }}
+    LOG_CHANNEL={{ .Values.logChannel }}
+    APP_URL={{ .Values.appUrl }}
+    APP_ENV={{ .Values.appEnv }}
+    APP_KEY={{ .Values.appKey }}
+    DEFAULT_ADMIN_NAME={{ .Values.adminName }}
+    DEFAULT_ADMIN_EMAIL={{ .Values.adminEmail }}
+    DEFAULT_ADMIN_PASSWORD={{ .Values.adminPassword }}
+    MEDIA_PATH={{ .Values.mediaPath }}
+{{- end }}
