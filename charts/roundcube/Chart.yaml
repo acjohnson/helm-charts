@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: v1.4.11
 description: Roundcube
 name: roundcube
-version: 0.0.1
+version: 0.0.2
 keywords:
   - roundcube
 home: https://roundcube.net/
