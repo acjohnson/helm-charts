@@ -56,16 +56,6 @@ spec:
             {{- toYaml .Values.roundcube.podSecurityContext | nindent 12 }}
           image: "{{ .Values.images.roundcube.repository }}:{{ .Values.images.roundcube.tag }}"
           imagePullPolicy: {{ .Values.images.roundcube.pullPolicy }}
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                - bash
-                - "-c"
-                - |
-                  sleep 30;
-                  sudo -Eu www-data php artisan roundcube:init --no-interaction --no-assets;
-                  sudo -Eu www-data php artisan roundcube:search:import --no-interaction;
           ports:
           - name: roundcube-http
             protocol: TCP
@@ -77,50 +67,66 @@ spec:
             - configMapRef:
                 name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-env
           env:
-          - name: "DB_CONNECTION"
-            value: "{{ .Values.dbConnection }}"
-  {{- if not (eq "sqlite" .Values.dbConnection) }}
-          - name: "DB_HOST"
+          - name: "ROUNDCUBEMAIL_DEFAULT_HOST"
+            value: "{{ .Values.defaultHost }}"
+          - name: "ROUNDCUBEMAIL_DEFAULT_PORT"
+            value: "{{ .Values.defaultPort }}"
+          - name: "ROUNDCUBEMAIL_SMTP_SERVER"
+            value: "{{ .Values.smtpServer }}"
+          - name: "ROUNDCUBEMAIL_SMTP_PORT"
+            value: "{{ .Values.smtpPort }}"
+          - name: "ROUNDCUBEMAIL_PLUGINS"
+            value: "{{ .Values.plugins }}"
+          - name: "ROUNDCUBEMAIL_SKIN"
+            value: "{{ .Values.skin }}"
+          - name: "ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE"
+            value: "{{ .Values.uploadMaxFilesize }}"
+          - name: "ROUNDCUBEMAIL_DES_KEY"
+            value: "{{ .Values.desKey }}"
+          - name: "ROUNDCUBEMAIL_SUPPORT_URL"
+            value: "{{ .Values.supportUrl }}"
+          - name: "ROUNDCUBEMAIL_PRODUCT_NAME"
+            value: "{{ .Values.productName }}"
+          - name: "ROUNDCUBEMAIL_ENABLE_INSTALLER"
+            value: "{{ .Values.enableInstaller }}"
+          - name: "ROUNDCUBEMAIL_ENABLE_SPELLCHECK"
+            value: "{{ .Values.enableSpellcheck }}"
+          - name: "ROUNDCUBEMAIL_SPELLCHECK_DICTIONARY"
+            value: "{{ .Values.spellcheckDictionary }}"
+          - name: "ROUNDCUBEMAIL_SPELLCHECK_ENGINE"
+            value: "{{ .Values.spellcheckEngine }}"
+          - name: "ROUNDCUBEMAIL_SPELLCHECK_URI"
+            value: "{{ .Values.spellcheckUri }}"
+          - name: "ROUNDCUBEMAIL_LOG_DRIVER"
+            value: "{{ .Values.logDriver }}"
+          - name: "ROUNDCUBEMAIL_USE_HTTPS"
+            value: "{{ .Values.useHttps }}"
+          - name: "ROUNDCUBEMAIL_FORCE_HTTPS"
+            value: "{{ .Values.forceHttps }}"
+          - name: "ROUNDCUBEMAIL_DB_TYPE"
+            value: "{{ .Values.dbType }}"
+  {{- if not (eq "sqlite" .Values.dbType) }}
+          - name: "ROUNDCUBEMAIL_DB_HOST"
             value: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}
-          - name: "DB_PORT"
+          - name: "ROUNDCUBEMAIL_DB_PORT"
             value: "{{ .Values.database.port }}"
-          - name: "DB_USERNAME"
+          - name: "ROUNDCUBEMAIL_DB_USER"
             value: "{{ .Values.dbUsername }}"
-          - name: "DB_PASSWORD"
+          - name: "ROUNDCUBEMAIL_DB_PASSWORD"
             value: "{{ .Values.dbPassword }}"
   {{- end }}
-          - name: "DB_DATABASE"
-            value: "{{ .Values.dbDatabase }}"
+          - name: "ROUNDCUBEMAIL_DB_NAME"
+            value: "{{ .Values.dbName }}"
           - name: "HTTP_PORT"
             value: "{{ .Values.httpPort }}"
           - name: "HTTPS_PORT"
             value: "{{ .Values.httpsPort }}"
-          - name: "APACHE_RUN_USER"
-            value: "{{ .Values.apacheRunUser }}"
-          - name: "APACHE_RUN_GROUP"
-            value: "{{ .Values.apacheRunGroup }}"
           - name: ROUNDCUBE_IMAGE
             value: "{{ .Values.images.roundcube.repository }}:{{ .Values.images.roundcube.tag }}"
           - name: KUBE_NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-  {{- if .Values.roundcube.persistence.music.enabled }}
-          - name: MUSIC_PVC
-  {{- if .Values.roundcube.persistence.music.claimName }}
-            value: "{{ .Values.roundcube.persistence.music.claimName }}"
-  {{- else }}
-            value: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-music
-  {{- end }}
-  {{- end }}
-  {{- if .Values.roundcube.persistence.covers.enabled }}
-          - name: COVERS_PVC
-  {{- if .Values.roundcube.persistence.covers.claimName }}
-            value: "{{ .Values.roundcube.persistence.covers.claimName }}"
-  {{- else }}
-            value: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-covers
-  {{- end }}
-  {{- end }}
   {{- if .Values.roundcube.persistence.data.enabled }}
           - name: DATA_PVC
   {{- if .Values.roundcube.persistence.data.claimName }}
@@ -160,8 +166,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.roundcube.service.defaultProtocol) }}
               port: {{ .Values.roundcube.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.roundcube.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.roundcube.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.roundcube.probes.liveness.periodSeconds }}
             failureThreshold: {{ .Values.roundcube.probes.liveness.failureThreshold }}
@@ -170,8 +180,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.roundcube.service.defaultProtocol) }}
               port: {{ .Values.roundcube.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.roundcube.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.roundcube.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.roundcube.probes.readiness.periodSeconds }}
             failureThreshold: {{ .Values.roundcube.probes.readiness.failureThreshold }}
@@ -180,27 +194,17 @@ spec:
           startupProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.roundcube.service.defaultProtocol) }}
               port: {{ .Values.roundcube.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.roundcube.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.roundcube.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.roundcube.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.roundcube.probes.startup.failureThreshold }}
           {{- end }}
           volumeMounts:
-          {{- if .Values.roundcube.persistence.music.enabled }}
-          - name: music
-            mountPath: /music
-          {{- if .Values.roundcube.persistence.music.subPath }}
-            subPath: {{ .Values.roundcube.persistence.music.subPath }}
-          {{- end }}
-          {{- end }}
-          {{- if .Values.roundcube.persistence.covers.enabled }}
-          - name: covers
-            mountPath: /var/www/html/public/img/covers
-          {{- if .Values.roundcube.persistence.covers.subPath }}
-            subPath: {{ .Values.roundcube.persistence.covers.subPath }}
-          {{- end }}
-          {{- end }}
           {{- if .Values.roundcube.persistence.data.enabled }}
           - name: data
             mountPath: /data
@@ -232,6 +236,11 @@ spec:
             subPath: env
           {{- end }}
           {{- end }}
+          {{- if .Values.customConfigIncPhp }}
+          - name: {{ $fullName }}-{{ $component }}-custom-config-inc-php
+            mountPath: /var/roundcube/config/config.inc.php
+            subPath: config.inc.php
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 ##### VOLUMES START #####
@@ -246,23 +255,10 @@ spec:
           secretName: {{ .secretName }}
 {{- end }}
 {{- end }}
-{{- if .Values.roundcube.persistence.music.enabled }}
-      - name: music
-        persistentVolumeClaim:
-  {{- if .Values.roundcube.persistence.music.claimName }}
-          claimName: "{{ .Values.roundcube.persistence.music.claimName }}"
-  {{- else }}
-          claimName: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-music
-  {{- end }}
-{{- end }}
-{{- if .Values.roundcube.persistence.covers.enabled }}
-      - name: covers
-        persistentVolumeClaim:
-  {{- if .Values.roundcube.persistence.covers.claimName }}
-          claimName: "{{ .Values.roundcube.persistence.covers.claimName }}"
-  {{- else }}
-          claimName: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-covers
-  {{- end }}
+{{- if .Values.customConfigIncPhp }}
+      - name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-config-inc-php
+        secret:
+          secretName: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-config-inc-php
 {{- end }}
 {{- if .Values.roundcube.persistence.data.enabled }}
       - name: data

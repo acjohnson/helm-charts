@@ -160,8 +160,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
               port: {{ .Values.koel.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.koel.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.koel.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.koel.probes.liveness.periodSeconds }}
             failureThreshold: {{ .Values.koel.probes.liveness.failureThreshold }}
@@ -170,8 +174,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
               port: {{ .Values.koel.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.koel.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.koel.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.koel.probes.readiness.periodSeconds }}
             failureThreshold: {{ .Values.koel.probes.readiness.failureThreshold }}
@@ -180,8 +188,12 @@ spec:
           startupProbe:
             httpGet:
               path: /
+              {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
               port: {{ .Values.koel.service.ports.https }}
               scheme: HTTPS
+              {{- else }}
+              port: {{ .Values.koel.service.ports.http }}
+              {{- end }}
             initialDelaySeconds: {{ .Values.koel.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.koel.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.koel.probes.startup.failureThreshold }}

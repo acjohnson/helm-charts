@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: v5.1.0](https://img.shields.io/badge/AppVersion-v5.1.0-informational?style=flat-square)
+![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: v1.4.11](https://img.shields.io/badge/AppVersion-v1.4.11-informational?style=flat-square)
 
 Roundcube
 
@@ -9,8 +9,8 @@ Roundcube
 ## Source Code
 
 * <https://github.com/acjohnson/helm-charts/tree/master/charts/roundcube>
-* <https://github.com/jgesc/docker_roundcube>
-* <https://github.com/roundcube/roundcube>
+* <https://github.com/roundcube/roundcubemail-docker>
+* <https://github.com/roundcube/roundcubemail>
 
 ## Requirements
 
@@ -71,16 +71,9 @@ N/A
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| adminEmail | string | `"admin@example.com"` |  |
-| adminName | string | `"Admin"` |  |
-| adminPassword | string | `"changeme"` |  |
-| apacheRunGroup | string | `"www-data"` |  |
-| apacheRunUser | string | `"www-data"` |  |
-| appEnv | string | `"production"` |  |
-| appKey | string | `"base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ="` |  |
-| appUrl | string | `"https://roundcube.example.com"` |  |
 | components.database | bool | `true` |  |
 | components.roundcube | bool | `true` |  |
+| customConfigIncPhp | string | `nil` |  |
 | database.affinity.anti_affinity | bool | `true` |  |
 | database.affinity.type | string | `"requiredDuringSchedulingIgnoredDuringExecution"` |  |
 | database.component | string | `"database"` |  |
@@ -101,12 +94,17 @@ N/A
 | database.probe.liveness.periodSeconds | int | `60` |  |
 | database.service.annotations | object | `{}` |  |
 | database.tolerations | list | `[]` |  |
-| dbConnection | string | `"mysql"` |  |
-| dbDatabase | string | `"roundcube"` |  |
+| dbName | string | `"roundcubemail"` |  |
 | dbPassword | string | `"changeme"` |  |
 | dbRootPassword | string | `"changeme"` |  |
+| dbType | string | `"mysql"` |  |
 | dbUsername | string | `"roundcube"` |  |
-| forceHttps | bool | `true` |  |
+| defaultHost | string | `"ssl://localhost"` |  |
+| defaultPort | int | `993` |  |
+| desKey | string | `"abcdefghijklmnopqrstuvwx"` |  |
+| enableInstaller | bool | `false` |  |
+| enableSpellcheck | bool | `true` |  |
+| forceHttps | string | `""` |  |
 | fullnameOverride | string | `""` |  |
 | hostNetwork | bool | `false` |  |
 | httpPort | int | `80` |  |
@@ -116,8 +114,16 @@ N/A
 | images.database.repository | string | `"mariadb"` |  |
 | images.database.tag | string | `"10.5.8"` |  |
 | images.roundcube.pullPolicy | string | `"IfNotPresent"` |  |
-| images.roundcube.repository | string | `"registry.thejohnsons.site/jgesc/roundcube"` |  |
-| images.roundcube.tag | string | `"v5.1.0"` |  |
+| images.roundcube.repository | string | `"registry.thejohnsons.site/debianbased"` |  |
+| images.roundcube.tag | string | `"roundcube"` |  |
+| logDriver | string | `"stdout"` |  |
+| nameOverride | string | `""` |  |
+| namespace | string | `"roundcube"` |  |
+| namespaceCreate | bool | `false` |  |
+| plugins | string | `"archive,zipdownload,password"` |  |
+| productName | string | `"Roundcube Webmail"` |  |
+| publicHttpPort | int | `80` |  |
+| publicHttpsPort | int | `443` |  |
 | roundcube.affinity | object | `{}` |  |
 | roundcube.component | string | `"roundcube"` |  |
 | roundcube.deploymentAnnotations | object | `{}` |  |
@@ -126,19 +132,11 @@ N/A
 | roundcube.ingress.hosts[0] | string | `"chart-example.local"` |  |
 | roundcube.ingress.path | string | `"/"` |  |
 | roundcube.ingress.tls | list | `[]` |  |
-| roundcube.persistence.covers.accessMode | string | `"ReadWriteOnce"` |  |
-| roundcube.persistence.covers.enabled | bool | `true` |  |
-| roundcube.persistence.covers.size | string | `"20Gi"` |  |
-| roundcube.persistence.covers.storageClass | string | `""` |  |
 | roundcube.persistence.data.accessMode | string | `"ReadWriteOnce"` |  |
 | roundcube.persistence.data.enabled | bool | `false` |  |
 | roundcube.persistence.data.size | string | `"20Gi"` |  |
 | roundcube.persistence.data.storageClass | string | `""` |  |
 | roundcube.persistence.extraMounts | list | `[]` |  |
-| roundcube.persistence.music.accessMode | string | `"ReadWriteOnce"` |  |
-| roundcube.persistence.music.enabled | bool | `true` |  |
-| roundcube.persistence.music.size | string | `"100Gi"` |  |
-| roundcube.persistence.music.storageClass | string | `""` |  |
 | roundcube.podAnnotations | object | `{}` |  |
 | roundcube.podSecurityContext | object | `{}` |  |
 | roundcube.probes.liveness.enabled | bool | `true` |  |
@@ -158,24 +156,24 @@ N/A
 | roundcube.resources | object | `{}` |  |
 | roundcube.restartPodsOnConfigMapChange | bool | `false` |  |
 | roundcube.service.annotations | object | `{}` |  |
-| roundcube.service.defaultProtocol | string | `"https"` |  |
+| roundcube.service.defaultProtocol | string | `"http"` |  |
 | roundcube.service.labels | object | `{}` |  |
 | roundcube.service.loadBalancerIP | string | `nil` |  |
 | roundcube.service.ports.http | int | `80` |  |
 | roundcube.service.ports.https | int | `443` |  |
 | roundcube.service.type | string | `"ClusterIP"` |  |
 | roundcube.tolerations | list | `[]` |  |
-| logChannel | string | `"stderr"` |  |
-| mediaPath | string | `"/music"` |  |
-| nameOverride | string | `""` |  |
-| namespace | string | `"roundcube"` |  |
-| namespaceCreate | bool | `false` |  |
-| publicHttpPort | int | `80` |  |
-| publicHttpsPort | int | `443` |  |
 | securityContext | object | `{}` |  |
+| skin | string | `"elastic"` |  |
+| smtpPort | int | `587` |  |
+| smtpServer | string | `"tls://localhost"` |  |
+| spellcheckDictionary | bool | `false` |  |
+| spellcheckEngine | string | `"googie"` |  |
+| spellcheckUri | string | `""` |  |
 | strategyType | string | `"Recreate"` |  |
-| streamingMethod | string | `"x-sendfile"` |  |
 | timezone | string | `"UTC"` |  |
+| uploadMaxFilesize | string | `"50M"` |  |
+| useHttps | bool | `false` |  |
 
 ## Changelog
 

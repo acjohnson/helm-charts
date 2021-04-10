@@ -1,16 +1,16 @@
 apiVersion: v2
-appVersion: v5.1.0
+appVersion: v1.4.11
 description: Roundcube
 name: roundcube
 version: 0.0.1
 keywords:
   - roundcube
-home: https://roundcube.dev/
-icon: https://roundcube.dev/_nuxt/img/logo.f9bf992.svg
+home: https://roundcube.net/
+icon: https://roundcube.net/images/roundcube_logo_icon.svg
 sources:
   - https://github.com/acjohnson/helm-charts/tree/master/charts/roundcube
-  - https://github.com/jgesc/docker_roundcube
-  - https://github.com/roundcube/roundcube
+  - https://github.com/roundcube/roundcubemail-docker
+  - https://github.com/roundcube/roundcubemail
 maintainers:
   - name: acjohnson
     email: acjohnson@pcdomain.com

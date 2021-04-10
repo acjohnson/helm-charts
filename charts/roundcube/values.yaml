@@ -51,6 +51,7 @@ publicHttpPort: 80
 publicHttpsPort: 443
 
 # Override http port
+# Use 9000 if using the roundcube fpm image
 # Default is 80
 httpPort: 80
 
@@ -58,52 +59,67 @@ httpPort: 80
 # Default is 443
 httpsPort: 443
 
-# Force https
-# Default is true
-forceHttps: true
+# Tell PHP that it should work as under secure connection
+# even if it doesn't recognize it as secure ($_SERVER['HTTPS'] is not set)
+# e.g. when you're running Roundcube behind a https proxy
+# this option is mutually exclusive to 'force_https' and only either one of them should be set to true.
+# Default is false
+useHttps: false
 
-# Set the username of the webserver user
-# Default is www-data
-apacheRunUser: www-data
+# Enforce connections over https
+# With this option enabled, all non-secure connections will be redirected.
+# It can be also a port number, hostname or hostname:port if they are
+# different than default HTTP_HOST:443
+# Default is ""
+forceHttps: ""
 
-# Set the default group of the webserver user
-# Default is www-data
-apacheRunGroup: www-data
+# Hostname of the IMAP server to connect to, use tls:// prefix for STARTTLS
+# Default is "ssl://localhost"
+defaultHost: "ssl://localhost"
 
-# Set the address to access roundcube with
-# should be something like http(s)://roundcube.example.com
-appUrl: https://roundcube.example.com
+# IMAP port number
+# Default is 993
+defaultPort: 993
 
-# Set the application environment
-# Default is production
-appEnv: production
+# Hostname of the SMTP server to send mails, use tls:// prefix for STARTTLS
+# Default is "tls://localhost"
+smtpServer: "tls://localhost"
 
-# Set the application key
-# This is a base64 encoded key, one can be generated with php artisan key:generate --show
-# Default is base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
-appKey: base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
+# SMTP port number
+# Default is 587
+smtpPort: 587
 
-# Set the streaming method
-# Default is x-sendfile
-streamingMethod: x-sendfile
+# List of built-in plugins to activate
+# Default is "archive,zipdownload,password"
+plugins: "archive,zipdownload,password"
 
-# Set the media path
-# Default is /music
-mediaPath: /music
+# Configures the default theme
+# Default is "elastic"
+skin: "elastic"
 
-# Set the log channel
-# Default is stderr
-logChannel: stderr
+# File upload size limit
+# Default is "50M"
+uploadMaxFilesize: "50M"
 
-# Set the database connection driver to use
-# mysql, pgsql, sqlite are valid Laravel drivers
+# DES key used to encrypt the users imap password which is stored
+# in the session record (and the client cookie if remember password is enabled).
+# please provide a string of exactly 24 chars.
+# Default is "abcdefghijklmnopqrstuvwx"
+desKey: "abcdefghijklmnopqrstuvwx"
+
+# A base64ed Diffie-Hellman parameter
+# Mount a secret that contains a base64 encoded customized copy of config.inc.php
+# You'll pretty much for sure want to use this...
+customConfigIncPhp: 
+
+# Database provider
+# Currently supported: mysql, pgsql, sqlite
 # Default is mysql
-dbConnection: mysql
+dbType: mysql
 
-# Set the database name
-# if using sqlite must be the absolute path such as /data/roundcube.sqlite
-# Default is roundcube
-dbDatabase: roundcube
+# The database name for Roundcube to use
+# Default is "roundcubemail"
+dbName: "roundcubemail"
 
 # Set the database username
 # Default is roundcube
@@ -117,17 +133,41 @@ dbPassword: changeme
 # Default is changeme
 dbRootPassword: changeme
 
-# Set the admin display name
-# Default is Admin
-adminName: Admin
+# Set the title of the Roundcube site
+# Default is "Roundcube Webmail"
+productName: "Roundcube Webmail"
 
-# Set the admin email address
-# Defailt is admin@example.com
-adminEmail: admin@example.com
+# Enable the Roundcube installer
+# Default is false
+enableInstaller: false
 
-# Set the admin password
-# Default is changeme
-adminPassword: changeme
+# Enable Roundcube Spellcheck
+# Default is true
+enableSpellcheck: true
+
+# Enables spellchecker exceptions dictionary
+# Setting it to 'shared' will make the dictionary shared by all users
+# Default is false
+spellcheckDictionary: false
+
+# Set the spell checking engine. Possible values:
+# - 'googie'  - the default (also used for connecting to Nox Spell Server, see 'spellcheck_uri' setting)
+# - 'pspell'  - requires the PHP Pspell module and aspell installed
+# - 'enchant' - requires the PHP Enchant module
+# - 'atd'     - install your own After the Deadline server or check with the people at http://www.afterthedeadline.com before using their API
+# Since Google shut down their public spell checking service, the default settings
+# connect to http://spell.roundcube.net which is a hosted service provided by Roundcube.
+# You can connect to any other googie-compliant service by setting 'spellcheck_uri' accordingly.
+# Default is "googie"
+spellcheckEngine: "googie"
+
+# For locally installed Nox Spell Server or After the Deadline services
+# Default is ""
+spellcheckUri: ""
+
+# Roundcube log driver:  'syslog', 'stdout' or 'file'
+# Default is stdout
+logDriver: "stdout"
 
 # You can add as many Additional ENV variables here
 # The following is the same as --set extraEnv.FOO="bar"
@@ -175,8 +215,9 @@ roundcube:
   ## templates/roundcube-service.yaml
   service:
     type: ClusterIP
-    defaultProtocol: "https"
+    defaultProtocol: "http"
     ports:
+      # Use 9000 if using the roundcube fpm image
       http: 80
       https: 443
     annotations: {}
@@ -208,42 +249,6 @@ roundcube:
 
   ## roundcube volumes
   persistence:
-    music:
-      # We want to enable a music pvc
-      enabled: true
-      # Optionally specify claimName to manually override the PVC to be used for
-      # the music directory. If claimName is specified, storageClass and size are
-      # ignored.
-      ## claimName: "roundcube-music-pvc"
-      # Optionally specify a storage class to be used for the music directory.
-      # If not specified and claimName is not specified, the default storage
-      # class will be used.
-      storageClass: ""
-      # subPath: some-subpath
-      # The requested size of the volume to be used when creating a
-      # PersistentVolumeClaim.
-      size: 100Gi
-      # Access mode for this volume
-      accessMode: ReadWriteOnce
-
-    covers:
-      # We want to enable a covers pvc
-      enabled: true
-      # Optionally specify claimName to manually override the PVC to be used for
-      # the covers directory. If claimName is specified, storageClass and size
-      # are ignored.
-      ## claimName: "roundcube-covers-pvc"
-      # Optionally specify a storage class to be used for the covers directory.
-      # If not specified and claimName is not specified, the default storage
-      # class will be used.
-      # subPath: some-subpath
-      storageClass: ""
-      # The requested size of the volume to be used when creating a
-      # PersistentVolumeClaim.
-      size: 20Gi
-      # Access mode for this volume
-      accessMode: ReadWriteOnce
-
     data:
       # We want to enable a data pvc (use for sqlite database perhaps)
       enabled: false
@@ -267,8 +272,8 @@ roundcube:
     ## pod. This is useful if you wish to use different paths with categories
     ## Claim will me mounted as /{mountPath} if specified. If no {mountPath} is given,
     ## mountPath will default to {name}
-    # - name: more-music
-    #   # if claimName is specified the a new volume will mounted, if omitted the mount will be considered to be associated with one of the standard volumes (e.g music, covers).
+    # - name: more-data
+    #   # if claimName is specified the a new volume will mounted, if omitted the mount will be considered to be associated with one of the standard volumes (e.g data).
     #   # This useful to mount data to a different subPath
     #   claimName: optional-claim
     #   mountPath: /mnt/path/in/pod
@@ -319,7 +324,7 @@ roundcube:
   deploymentAnnotations: {}
 
   proxy:
-    # This allows to set a proxy environment variable, which Roundcube uses to fetch assets like album covers
+    # This allows to set a proxy environment variable, which Roundcube uses to fetch images, attachments, etc.
     enabled: false
     # http: "http://proxy:8080"
     # https: "https://proxy:8080"
