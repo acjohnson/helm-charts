@@ -15,6 +15,11 @@ To install the chart with the release name `osp`
 Note: regcred.yaml is only required if you plan to use a private docker registry. Also you'll want to customize ejabberd.yml and put it in a `configmap` as shown below
 
 ```console
+helm repo add thejohnsons https://charts.thejohnsons.site
+helm repo update
+```
+
+```console
 kubectl -n osp create -f regcred.yaml
 kubectl -n osp create configmap osp-osp-ejabberd-app-config --from-file=ejabberd.yml
 
