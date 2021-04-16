@@ -1,6 +1,6 @@
 # Open Streaming Platform
 
-![Version: 0.8.8](https://img.shields.io/badge/Version-0.8.8-informational?style=flat-square)
+![Version: 0.8.7](https://img.shields.io/badge/Version-0.8.7-informational?style=flat-square)
 
 Open Streaming Platform helm chart
 
