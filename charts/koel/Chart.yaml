@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v5.1.4
+appVersion: v5.1.5
 description: Koel
 name: koel
 version: 0.1.3
