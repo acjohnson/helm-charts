@@ -1,6 +1,6 @@
 # koel
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![AppVersion: v5.1.4](https://img.shields.io/badge/AppVersion-v5.1.4-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: v5.1.5](https://img.shields.io/badge/AppVersion-v5.1.5-informational?style=flat-square)
 
 Koel
 
@@ -114,10 +114,10 @@ N/A
 | imagePullSecrets | list | `[]` |  |
 | images.database.pullPolicy | string | `"IfNotPresent"` |  |
 | images.database.repository | string | `"mariadb"` |  |
-| images.database.tag | string | `"10.5.8"` |  |
+| images.database.tag | string | `"10.6.3"` |  |
 | images.koel.pullPolicy | string | `"IfNotPresent"` |  |
 | images.koel.repository | string | `"registry.thejohnsons.site/jgesc/koel"` |  |
-| images.koel.tag | string | `"v5.1.4"` |  |
+| images.koel.tag | string | `"v5.1.5"` |  |
 | koel.affinity | object | `{}` |  |
 | koel.component | string | `"koel"` |  |
 | koel.deploymentAnnotations | object | `{}` |  |
