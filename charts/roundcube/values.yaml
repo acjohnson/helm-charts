@@ -28,7 +28,7 @@ images:
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
-    tag: 10.6.2
+    tag: 10.6.4
     pullPolicy: IfNotPresent
 
 # Set the timezone of the roundcube server
@@ -107,10 +107,12 @@ uploadMaxFilesize: "50M"
 # Default is "abcdefghijklmnopqrstuvwx"
 desKey: "abcdefghijklmnopqrstuvwx"
 
-# A base64ed Diffie-Hellman parameter
 # Mount a secret that contains a base64 encoded customized copy of config.inc.php
 # You'll pretty much for sure want to use this...
 customConfigIncPhp: 
+
+# Mount a secret that contains a base64 encoded htaccess file
+customHtaccess:
 
 # Database provider
 # Currently supported: mysql, pgsql, sqlite

@@ -1,0 +1,19 @@
+{{- if .Values.components.roundcube }}
+{{- $fullName := include "roundcube.fullname" . -}}
+{{- $namespace := include "roundcube.namespace" . -}}
+{{- $labels := include "roundcube.labels" . | nindent 4 -}}
+{{- $dummy := set . "component" .Values.roundcube.component }}
+{{- $component := .component -}}
+{{- with .Values.customHtaccess -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $fullName }}-{{ $component }}-custom-htaccess
+  namespace: {{ $namespace }}
+  labels:
+    {{- $labels }}
+    component: {{ $component }}
+data:
+  htaccess: {{ . }}
+{{- end }}
+{{- end }}

@@ -241,6 +241,11 @@ spec:
             mountPath: /var/roundcube/config/config.inc.php
             subPath: config.inc.php
           {{- end }}
+          {{- if .Values.customHtaccess }}
+          - name: {{ $fullName }}-{{ $component }}-custom-htaccess
+            mountPath: /var/www/html/.htaccess
+            subPath: htaccess
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 ##### VOLUMES START #####
@@ -259,6 +264,11 @@ spec:
       - name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-config-inc-php
         secret:
           secretName: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-config-inc-php
+{{- end }}
+{{- if .Values.customHtaccess }}
+      - name: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-htaccess
+        secret:
+          secretName: {{ template "roundcube.fullname" . }}-{{ .Values.roundcube.component }}-custom-htaccess
 {{- end }}
 {{- if .Values.roundcube.persistence.data.enabled }}
       - name: data

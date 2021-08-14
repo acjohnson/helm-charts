@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![AppVersion: v1.5-rc](https://img.shields.io/badge/AppVersion-v1.5-rc-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![AppVersion: v1.5-rc](https://img.shields.io/badge/AppVersion-v1.5--rc-informational?style=flat-square)
 
 Roundcube
 
@@ -74,6 +74,7 @@ N/A
 | components.database | bool | `true` |  |
 | components.roundcube | bool | `true` |  |
 | customConfigIncPhp | string | `nil` |  |
+| customHtaccess | string | `nil` |  |
 | database.affinity.anti_affinity | bool | `true` |  |
 | database.affinity.type | string | `"requiredDuringSchedulingIgnoredDuringExecution"` |  |
 | database.component | string | `"database"` |  |
@@ -112,7 +113,7 @@ N/A
 | imagePullSecrets | list | `[]` |  |
 | images.database.pullPolicy | string | `"IfNotPresent"` |  |
 | images.database.repository | string | `"mariadb"` |  |
-| images.database.tag | string | `"10.5.8"` |  |
+| images.database.tag | string | `"10.6.4"` |  |
 | images.roundcube.pullPolicy | string | `"IfNotPresent"` |  |
 | images.roundcube.repository | string | `"registry.thejohnsons.site/debianbased"` |  |
 | images.roundcube.tag | string | `"roundcube"` |  |
