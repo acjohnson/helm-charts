@@ -1,6 +1,6 @@
 # Open Streaming Platform
 
-![Version: 0.8.7](https://img.shields.io/badge/Version-0.8.7-informational?style=flat-square)
+![Version: 0.8.16](https://img.shields.io/badge/Version-0.8.16-informational?style=flat-square)
 
 Open Streaming Platform helm chart
 
@@ -80,6 +80,35 @@ The command removes all the Kubernetes components associated with the chart **in
 ## Configuration
 
 Read through the [values.yaml](./values.yaml) file. It has several commented out suggested values.
+
+## Upgrading
+
+After upgrading the helm chart you will likely need to drop the `alembic_version` table before the database migrations will succeed.
+
+```shell
+MariaDB [osp]> select * from alembic_version;
++--------------+
+| version_num  |
++--------------+
+| fb1a7bec5a9d |
++--------------+
+1 row in set (0.000 sec)
+
+MariaDB [osp]> drop table alembic_version;
+Query OK, 0 rows affected (0.155 sec)
+```
+
+Drop the table as shown, then exec a shell in the osp-core pod, delete the migrations directory and manually re-run the migration/upgrade script
+
+```shell
+# kubectl -n osp-personal exec -it pod/osp-personal-osp-core-849c474555-nrvds -- /bin/bash
+
+bash-5.1# cd /opt/osp
+bash-5.1# rm -rf migrations/
+bash-5.1# python3 manage.py db init
+bash-5.1# python3 manage.py db migrate 
+bash-5.1# python3 manage.py db upgrade
+```
 
 ## Support
 - Open an [issue](https://github.com/acjohnson/helm-charts/issues/new/choose)
