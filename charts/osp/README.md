@@ -97,8 +97,20 @@ MariaDB [osp]> select * from alembic_version;
 MariaDB [osp]> drop table alembic_version;
 Query OK, 0 rows affected (0.155 sec)
 ```
+You may also need to make some manual table modifications as shown below
 
-Drop the table as shown, then exec a shell in the osp-core pod, delete the migrations directory and manually re-run the migration/upgrade script
+```shell
+ALTER TABLE settings
+ADD COLUMN proxyFQDN varchar(2048);
+
+ALTER TABLE Channel
+ADD COLUMN allowGuestNickChange tinyint(1);
+
+ALTER TABLE Stream
+ADD COLUMN rtmpServer int(11);
+```
+
+then exec a shell in the osp-core pod, delete the migrations directory and manually re-run the migration/upgrade script
 
 ```shell
 # kubectl -n osp-personal exec -it pod/osp-personal-osp-core-849c474555-nrvds -- /bin/bash
@@ -109,6 +121,8 @@ bash-5.1# python3 manage.py db init
 bash-5.1# python3 manage.py db migrate 
 bash-5.1# python3 manage.py db upgrade
 ```
+
+You'll need to manually `rollout restart` each deployment after the db migrations are complete.
 
 ## Support
 - Open an [issue](https://github.com/acjohnson/helm-charts/issues/new/choose)
