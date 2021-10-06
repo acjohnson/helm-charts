@@ -78,11 +78,11 @@ images:
     pullPolicy: IfNotPresent
   osp_db:
     repository: mariadb
-    tag: 10.5.8
+    tag: 10.6.4
     pullPolicy: IfNotPresent
   osp_redis:
     repository: redis
-    tag: 6.0.10
+    tag: 6.2.6
     pullPolicy: IfNotPresent
 
 # If osp images are hosted from a private registry you can add the name of the docker creds secret
