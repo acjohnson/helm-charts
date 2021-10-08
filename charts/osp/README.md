@@ -83,7 +83,9 @@ Read through the [values.yaml](./values.yaml) file. It has several commented out
 
 ## Upgrading
 
-After upgrading the helm chart you will likely need to drop the `alembic_version` table before the database migrations will succeed.
+### OSP Upgrade Steps
+
+After upgrading past OSP version `0.8.7` you will likely need to drop the `alembic_version` table before the database migrations will succeed.
 
 ```shell
 MariaDB [osp]> select * from alembic_version;
@@ -123,6 +125,18 @@ bash-5.1# python3 manage.py db upgrade
 ```
 
 You'll need to manually `rollout restart` each deployment after the db migrations are complete.
+
+### Helm/Kubernetes Upgrade Steps
+
+Prior to version `1.0.3` of this chart the `osp_rtmp` service did not use `clusterIP` service type.
+
+Since this has changed you will not be able to upgrade the deployment without first deleting the old `osp_rtmp` service
+
+```shell
+# kubectl -n osp-personal delete service/osp-personal-osp-rtmp
+```
+
+After deleting the old service the helm deployment/upgrade should succeed.
 
 ## Support
 - Open an [issue](https://github.com/acjohnson/helm-charts/issues/new/choose)
