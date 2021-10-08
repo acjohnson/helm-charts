@@ -10,7 +10,7 @@ metadata:
   annotations:
 {{ toYaml .Values.osp_rtmp.service.annotations | indent 4 }}
 spec:
-  type: {{ .Values.osp_core.service.type }}
+  type: {{ .Values.osp_rtmp.service.type }}
   ports:
     - name: server
       port: {{ .Values.osp_rtmp.service.port }}
