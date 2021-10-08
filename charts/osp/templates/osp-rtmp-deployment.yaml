@@ -51,6 +51,8 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
+        - secretRef:
+            name: ""{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-secret"
         volumeMounts:
         - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"
           mountPath: /var/www

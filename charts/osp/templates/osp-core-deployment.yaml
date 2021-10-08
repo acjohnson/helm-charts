@@ -104,6 +104,16 @@ spec:
             secretKeyRef:
               name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
               key: MYSQL_DATABASE
+        - name: FLASK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-secret"
+              key: FLASK_SECRET
+        - name: FLASK_SALT
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-secret"
+              key: FLASK_SALT
         - name: DB_URL
           value: mysql+pymysql://$(OSP_DB_USER):$(OSP_DB_PASSWORD)@{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}:{{ .Values.osp_db.port }}/$(OSP_DB_NAME)
         volumeMounts:
