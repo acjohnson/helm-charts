@@ -1,0 +1,12 @@
+{{- if .Values.components.osp_rtmp }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "osp.fullname" . }}-{{ .Values.osp_rtmp.component }}"
+  namespace: {{ template "osp.namespace" . }}
+  labels:
+    {{- include "osp.standardLabels" . | nindent 4 }}
+    component: {{ .Values.osp_rtmp.component }}
+data:
+{{ toYaml .Values.osp_rtmp.configData | indent 2 }}
+{{- end }}
