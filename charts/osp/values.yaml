@@ -285,10 +285,16 @@ osp_rtmp:
   ## templates/osp-rtmp-service.yaml
   ##
   service:
-    type: ClusterIP
-    port: 1935
-    targetPort: 1935
-    annotations: {}
+    rtmp:
+      type: ClusterIP
+      port: 1935
+      targetPort: 1935
+      annotations: {}
+    nginx:
+      type: ClusterIP
+      port: 9000
+      targetPort: 9000
+      annotations: {}
 
 ## OSP: Database
 ## templates/osp-db-deployment.yaml

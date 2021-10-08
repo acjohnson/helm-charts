@@ -8,14 +8,18 @@ metadata:
     {{- include "osp.standardLabels" . | nindent 4 }}
     component: {{ .Values.osp_rtmp.component }}
   annotations:
-{{ toYaml .Values.osp_rtmp.service.annotations | indent 4 }}
+{{ toYaml .Values.osp_rtmp.service.rtmp.annotations | indent 4 }}
 spec:
-  type: {{ .Values.osp_rtmp.service.type }}
+  type: {{ .Values.osp_rtmp.service.rtmp.type }}
   ports:
     - name: server
-      port: {{ .Values.osp_rtmp.service.port }}
+      port: {{ .Values.osp_rtmp.service.rtmp.port }}
       protocol: TCP
       targetPort: server
+    - name: nginx
+      port: {{ .Values.osp_rtmp.service.nginx.port }}
+      protocol: TCP
+      targetPort: nginx
   selector:
     app: {{ template "osp.name" . }}
     release: {{ .Release.Name }}
