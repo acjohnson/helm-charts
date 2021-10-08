@@ -15,7 +15,7 @@ spec:
     - name: server
       port: {{ .Values.osp_core.service.port }}
       protocol: TCP
-      targetPort: server
+      targetPort: {{ .Values.osp_core.service.targetPort }}
   selector:
     app: {{ template "osp.name" . }}
     release: {{ .Release.Name }}

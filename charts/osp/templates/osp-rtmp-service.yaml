@@ -10,11 +10,12 @@ metadata:
   annotations:
 {{ toYaml .Values.osp_rtmp.service.annotations | indent 4 }}
 spec:
-  clusterIP: None
+  type: {{ .Values.osp_core.service.type }}
   ports:
     - name: server
-      port: {{ .Values.osp_rtmp.port }}
+      port: {{ .Values.osp_rtmp.service.port }}
       protocol: TCP
+      targetPort: {{ .Values.osp_rtmp.service.targetPort }}
   selector:
     app: {{ template "osp.name" . }}
     release: {{ .Release.Name }}
