@@ -254,7 +254,8 @@ osp_core:
     OSP_API_DOMAIN: streams.example.com
     OSP_ALLOWREGISTRATION: "True"
     OSP_REQUIREVERIFICATION: "False"
-    OSP_CORE_DEBUG: "False"
+    OSP_CORE_UI_DEBUG: "False"
+    OSP_CORE_LOG_LEVEL: "error"
 
 ## OSP: RTMP
 ## templates/osp-rtmp-deployment.yaml
@@ -283,7 +284,8 @@ osp_rtmp:
   #     memory: 250Mi
   #     cpu: 0.2
   configData:
-    OSP_RTMP_DEBUG: "False"
+    OSP_RTMP_UI_DEBUG: "False"
+    OSP_RTMP_LOG_LEVEL: "error"
   ## osp_rtmp service
   ## templates/osp-rtmp-service.yaml
   ##
