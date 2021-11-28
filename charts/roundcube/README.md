@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![AppVersion: v1.5-rc](https://img.shields.io/badge/AppVersion-v1.5--rc-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: v1.5.1](https://img.shields.io/badge/AppVersion-v1.5.1-informational?style=flat-square)
 
 Roundcube
 
@@ -113,7 +113,7 @@ N/A
 | imagePullSecrets | list | `[]` |  |
 | images.database.pullPolicy | string | `"IfNotPresent"` |  |
 | images.database.repository | string | `"mariadb"` |  |
-| images.database.tag | string | `"10.6.4"` |  |
+| images.database.tag | string | `"10.7.1"` |  |
 | images.roundcube.pullPolicy | string | `"IfNotPresent"` |  |
 | images.roundcube.repository | string | `"registry.thejohnsons.site/debianbased"` |  |
 | images.roundcube.tag | string | `"roundcube"` |  |
