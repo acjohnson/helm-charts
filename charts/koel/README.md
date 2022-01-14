@@ -1,6 +1,6 @@
 # koel
 
-![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![AppVersion: v5.1.12](https://img.shields.io/badge/AppVersion-v5.1.12-informational?style=flat-square)
+![Version: 0.1.10](https://img.shields.io/badge/Version-0.1.10-informational?style=flat-square) ![AppVersion: v5.1.12](https://img.shields.io/badge/AppVersion-v5.1.12-informational?style=flat-square)
 
 Koel
 

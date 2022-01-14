@@ -24,7 +24,7 @@ components:
 images:
   koel:
     repository: registry.thejohnsons.site/jgesc/koel
-    tag: v5.1.12
+    tag: v5.1.12-1
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
