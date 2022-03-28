@@ -66,15 +66,15 @@ components:
 images:
   osp_ejabberd:
     repository: registry.thejohnsons.site/deamos/080_osp_ejabberd
-    tag: 0.8.16
+    tag: 0.8.17
     pullPolicy: IfNotPresent
   osp_core:
     repository: registry.thejohnsons.site/deamos/080_osp_core
-    tag: 0.8.16
+    tag: 0.8.17
     pullPolicy: IfNotPresent
   osp_rtmp:
     repository: registry.thejohnsons.site/deamos/080_osp_rtmp
-    tag: 0.8.16
+    tag: 0.8.17
     pullPolicy: IfNotPresent
   osp_db:
     repository: mariadb
