@@ -78,7 +78,7 @@ images:
     pullPolicy: IfNotPresent
   osp_db:
     repository: mariadb
-    tag: 10.6.4
+    tag: 10.6.7
     pullPolicy: IfNotPresent
   osp_redis:
     repository: redis
