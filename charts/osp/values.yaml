@@ -248,7 +248,6 @@ osp_core:
   configData:
     TZ: UTC
     EJABBERD_DOMAIN: streams.example.com
-    OSPCOREAPI: http://streams.example.com
     OSP_SERVER_ADDRESS: streams.example.com
     OSP_API_PROTOCOL: http
     OSP_API_DOMAIN: streams.example.com
@@ -256,6 +255,13 @@ osp_core:
     OSP_REQUIREVERIFICATION: "False"
     OSP_CORE_UI_DEBUG: "False"
     OSP_CORE_LOG_LEVEL: "error"
+    OSP_REDIS_HOST:
+    OSP_REDIS_PORT:
+    OSP_REDIS_PASSWORD:
+    OSP_CORE_DB:
+    OSP_CORE_SECRETKEY:
+    OSP_CORE_PASSWORD_SALT:
+    
 
 ## OSP: RTMP
 ## templates/osp-rtmp-deployment.yaml
