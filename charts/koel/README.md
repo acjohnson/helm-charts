@@ -120,6 +120,8 @@ N/A
 | images.koel.tag | string | `"v6.0.5"` |  |
 | koel.affinity | object | `{}` |  |
 | koel.component | string | `"koel"` |  |
+| koel.cronJob.restartPolicy | string | `"Never"` |  |
+| koel.cronJob.schedule | string | `"*/15 * * * *"` |  |
 | koel.deploymentAnnotations | object | `{}` |  |
 | koel.ingress.annotations | object | `{}` |  |
 | koel.ingress.enabled | bool | `false` |  |
