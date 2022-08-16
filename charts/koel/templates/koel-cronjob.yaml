@@ -1,0 +1,304 @@
+{{- if .Values.components.koel }}
+{{- $fullName := include "koel.fullname" . -}}
+{{- $dummy := set . "component" .Values.koel.component }}
+{{- $component := .component -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
+  namespace: {{ template "koel.namespace" . }}
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+    component: {{ .Values.koel.component }}
+  {{- if .Values.koel.deploymentAnnotations }}
+  annotations:
+    {{- range $key, $value := .Values.koel.deploymentAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "koel.selectorLabels" . | nindent 8 }}
+        component: {{ .Values.koel.component }}
+      {{- if .Values.koel.podAnnotations }}
+      annotations:
+        {{- if .Values.koel.restartPodsOnConfigMapChange }}
+        checksum/config: {{ include (print $.Template.BasePath "/koel-configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- range $key, $value := .Values.koel.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
+    template:
+      spec:
+      {{- with .Values.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.hostNetwork }}
+        hostNetwork: {{ .Values.hostNetwork }}
+        dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 8 }}
+        containers:
+          - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
+            securityContext:
+              {{- toYaml .Values.koel.podSecurityContext | nindent 12 }}
+            image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
+            imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                  - bash
+                  - "-c"
+                  - |
+                    sleep 30;
+                    sudo -Eu www-data php artisan koel:sync;
+                    exit 0
+            ports:
+            - name: koel-http
+              protocol: TCP
+              containerPort: {{.Values.httpPort}}
+            - name: koel-https
+              protocol: TCP
+              containerPort: {{.Values.httpsPort}}
+            envFrom:
+              - configMapRef:
+                  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
+            env:
+            - name: "DB_CONNECTION"
+              value: "{{ .Values.dbConnection }}"
+    {{- if not (eq "sqlite" .Values.dbConnection) }}
+            - name: "DB_HOST"
+              value: {{ template "koel.fullname" . }}-{{ .Values.database.component }}
+            - name: "DB_PORT"
+              value: "{{ .Values.database.port }}"
+            - name: "DB_USERNAME"
+              value: "{{ .Values.dbUsername }}"
+            - name: "DB_PASSWORD"
+              value: "{{ .Values.dbPassword }}"
+    {{- end }}
+            - name: "DB_DATABASE"
+              value: "{{ .Values.dbDatabase }}"
+            - name: "HTTP_PORT"
+              value: "{{ .Values.httpPort }}"
+            - name: "HTTPS_PORT"
+              value: "{{ .Values.httpsPort }}"
+            - name: "APACHE_RUN_USER"
+              value: "{{ .Values.apacheRunUser }}"
+            - name: "APACHE_RUN_GROUP"
+              value: "{{ .Values.apacheRunGroup }}"
+            - name: KOEL_IMAGE
+              value: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+    {{- if .Values.koel.persistence.music.enabled }}
+            - name: MUSIC_PVC
+    {{- if .Values.koel.persistence.music.claimName }}
+              value: "{{ .Values.koel.persistence.music.claimName }}"
+    {{- else }}
+              value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-music
+    {{- end }}
+    {{- end }}
+    {{- if .Values.koel.persistence.covers.enabled }}
+            - name: COVERS_PVC
+    {{- if .Values.koel.persistence.covers.claimName }}
+              value: "{{ .Values.koel.persistence.covers.claimName }}"
+    {{- else }}
+              value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers
+    {{- end }}
+    {{- end }}
+    {{- if .Values.koel.persistence.data.enabled }}
+            - name: DATA_PVC
+    {{- if .Values.koel.persistence.data.claimName }}
+              value: "{{ .Values.koel.persistence.data.claimName }}"
+    {{- else }}
+              value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-data
+    {{- end }}
+    {{- end }}
+    {{- if .Values.koel.proxy.enabled }}
+    {{- if .Values.koel.proxy.http }}
+            - name: "HTTP_PROXY"
+              value: "{{ .Values.koel.proxy.http }}"
+    {{- end }}
+    {{- if .Values.koel.proxy.https }}
+            - name: "HTTPS_PROXY"
+              value: "{{ .Values.koel.proxy.https }}"
+    {{- end }}
+    {{- if .Values.koel.proxy.noproxy }}
+            - name: "NO_PROXY"
+              value: "{{ .Values.koel.proxy.noproxy }}"
+    {{- end }}
+    {{- end }}
+    {{- if .Values.publicHttpPort }}
+            - name: "PUBLIC_HTTP_PORT"
+              value: "{{ .Values.publicHttpPort }}"
+    {{- end }}
+    {{- if .Values.publicHttpsPort }}
+            - name: "PUBLIC_HTTPS_PORT"
+              value: "{{ .Values.publicHttpsPort }}"
+    {{- end }}
+# Extra ENV Values supplied by user
+  {{- range $key, $value := .Values.extraEnv }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+  {{- end }}
+            {{- if .Values.koel.probes.liveness.enabled }}
+            livenessProbe:
+              httpGet:
+                path: /
+                {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
+                port: {{ .Values.koel.service.ports.https }}
+                scheme: HTTPS
+                {{- else }}
+                port: {{ .Values.koel.service.ports.http }}
+                {{- end }}
+              initialDelaySeconds: {{ .Values.koel.probes.liveness.initialDelaySeconds }}
+              periodSeconds: {{ .Values.koel.probes.liveness.periodSeconds }}
+              failureThreshold: {{ .Values.koel.probes.liveness.failureThreshold }}
+            {{- end }}
+            {{- if .Values.koel.probes.readiness.enabled }}
+            readinessProbe:
+              httpGet:
+                path: /
+                {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
+                port: {{ .Values.koel.service.ports.https }}
+                scheme: HTTPS
+                {{- else }}
+                port: {{ .Values.koel.service.ports.http }}
+                {{- end }}
+              initialDelaySeconds: {{ .Values.koel.probes.readiness.initialDelaySeconds }}
+              periodSeconds: {{ .Values.koel.probes.readiness.periodSeconds }}
+              failureThreshold: {{ .Values.koel.probes.readiness.failureThreshold }}
+            {{- end }}
+            {{- if .Values.koel.probes.startup.enabled }}
+            startupProbe:
+              httpGet:
+                path: /
+                {{- if (eq "https" .Values.koel.service.defaultProtocol) }}
+                port: {{ .Values.koel.service.ports.https }}
+                scheme: HTTPS
+                {{- else }}
+                port: {{ .Values.koel.service.ports.http }}
+                {{- end }}
+              initialDelaySeconds: {{ .Values.koel.probes.startup.initialDelaySeconds }}
+              periodSeconds: {{ .Values.koel.probes.startup.periodSeconds }}
+              failureThreshold: {{ .Values.koel.probes.startup.failureThreshold }}
+            {{- end }}
+            volumeMounts:
+            {{- if .Values.koel.persistence.music.enabled }}
+            - name: music
+              mountPath: /music
+            {{- if .Values.koel.persistence.music.subPath }}
+              subPath: {{ .Values.koel.persistence.music.subPath }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.koel.persistence.covers.enabled }}
+            - name: covers
+              mountPath: /var/www/html/public/img/covers
+            {{- if .Values.koel.persistence.covers.subPath }}
+              subPath: {{ .Values.koel.persistence.covers.subPath }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.koel.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- if .Values.koel.persistence.data.subPath }}
+              subPath: {{ .Values.koel.persistence.data.subPath }}
+            {{- end }}
+            {{- end }}
+            {{-  range .Values.koel.persistence.extraMounts }}
+            {{- if .mountPath }}
+            - mountPath: {{ .mountPath }}
+            {{- else }}
+            - mountPath: /{{ .name }}
+            {{- end }}
+            {{- if .subPath }}
+              subPath: {{ .subPath }}
+            {{- end }}
+              name: {{ .name }}
+            {{- end }}
+            {{- range .Values.koel.ingress.tls }}
+            {{- if .secretName }}
+            - name: {{ .secretName }}
+              mountPath: /etc/apache2/ssl/certs/koel.crt
+              subPath: tls.crt
+            - name: {{ .secretName }}
+              mountPath: /etc/apache2/ssl/private/koel.key
+              subPath: tls.key
+            - name: {{ $fullName }}-{{ $component }}-env
+              mountPath: /var/www/html/.env
+              subPath: env
+            {{- end }}
+            {{- end }}
+            resources:
+              {{- toYaml .Values.resources | nindent 12 }}
+  ##### VOLUMES START #####
+        volumes:
+        - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
+          configMap:
+            name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
+  {{- range .Values.koel.ingress.tls }}
+  {{- if .secretName }}
+        - name: {{ .secretName }}
+          secret:
+            secretName: {{ .secretName }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.koel.persistence.music.enabled }}
+        - name: music
+          persistentVolumeClaim:
+    {{- if .Values.koel.persistence.music.claimName }}
+            claimName: "{{ .Values.koel.persistence.music.claimName }}"
+    {{- else }}
+            claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-music
+    {{- end }}
+  {{- end }}
+  {{- if .Values.koel.persistence.covers.enabled }}
+        - name: covers
+          persistentVolumeClaim:
+    {{- if .Values.koel.persistence.covers.claimName }}
+            claimName: "{{ .Values.koel.persistence.covers.claimName }}"
+    {{- else }}
+            claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers
+    {{- end }}
+  {{- end }}
+  {{- if .Values.koel.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+    {{- if .Values.koel.persistence.data.claimName }}
+            claimName: "{{ .Values.koel.persistence.data.claimName }}"
+    {{- else }}
+            claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-data
+    {{- end }}
+  {{- end }}
+  {{- range .Values.koel.persistence.extraMounts }}
+    {{- if .claimName }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .claimName }}
+    {{- else if .volume }}
+        - name: {{ .name }}
+          {{- toYaml .volume | nindent 8 }}
+    {{- end }}
+  {{- end }}
+  ##### VOLUMES END #####
+      {{- with .Values.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+        affinity:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
