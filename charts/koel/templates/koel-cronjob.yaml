@@ -41,12 +41,16 @@ spec:
         hostNetwork: {{ .Values.hostNetwork }}
         dnsPolicy: ClusterFirstWithHostNet
       {{- end }}
+      {{- if .Values.securityContext }}
         securityContext:
           {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
         containers:
           - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
+          {{- if .Values.koel.podSecurityContext }}
             securityContext:
               {{- toYaml .Values.koel.podSecurityContext | nindent 12 }}
+          {{- end }}
             image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
             imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
             lifecycle:
@@ -237,8 +241,10 @@ spec:
               subPath: env
             {{- end }}
             {{- end }}
+            {{- if .Values.resources }}
             resources:
               {{- toYaml .Values.resources | nindent 12 }}
+            {{- end }}
   ##### VOLUMES START #####
         volumes:
         - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
