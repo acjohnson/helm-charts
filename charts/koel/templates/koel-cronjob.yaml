@@ -296,16 +296,22 @@ spec:
     {{- end }}
   {{- end }}
   ##### VOLUMES END #####
+    {{- if .Values.nodeSelector }}
       {{- with .Values.nodeSelector }}
         nodeSelector:
           {{- toYaml . | nindent 8 }}
       {{- end }}
+    {{- end }}
+    {{- if .Values.affinity }}
       {{- with .Values.affinity }}
         affinity:
           {{- toYaml . | nindent 8 }}
       {{- end }}
+    {{- end }}
+    {{- if .Values.tolerations }}
       {{- with .Values.tolerations }}
         tolerations:
           {{- toYaml . | nindent 8 }}
       {{- end }}
+    {{- end }}
 {{- end }}
