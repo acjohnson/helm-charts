@@ -47,6 +47,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
         {{- end }}
+          restartPolicy: "{{ .Values.koel.cronJob.restartPolicy }}"
           containers:
             - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
             {{- if .Values.koel.podSecurityContext }}
