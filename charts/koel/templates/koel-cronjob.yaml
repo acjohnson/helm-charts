@@ -56,16 +56,12 @@ spec:
             {{- end }}
               image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
               imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
-              lifecycle:
-                postStart:
-                  exec:
-                    command:
-                    - bash
-                    - "-c"
-                    - |
-                      sleep 30;
-                      sudo -Eu www-data php artisan koel:sync;
-                      exit 0
+              command:
+              - bash
+              - "-c"
+              - |
+                sudo -Eu www-data php artisan koel:sync;
+                exit 0
               ports:
               - name: koel-http
                 protocol: TCP
