@@ -36,7 +36,7 @@ spec:
       spec:
       {{- with .Values.imagePullSecrets }}
         imagePullSecrets:
-          {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 10 }}
       {{- end }}
       {{- if .Values.hostNetwork }}
         hostNetwork: {{ .Values.hostNetwork }}
@@ -44,13 +44,13 @@ spec:
       {{- end }}
       {{- if .Values.securityContext }}
         securityContext:
-          {{- toYaml .Values.securityContext | nindent 8 }}
+          {{- toYaml .Values.securityContext | nindent 10 }}
       {{- end }}
         containers:
           - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}
           {{- if .Values.koel.podSecurityContext }}
             securityContext:
-              {{- toYaml .Values.koel.podSecurityContext | nindent 12 }}
+              {{- toYaml .Values.koel.podSecurityContext | nindent 14 }}
           {{- end }}
             image: "{{ .Values.images.koel.repository }}:{{ .Values.images.koel.tag }}"
             imagePullPolicy: {{ .Values.images.koel.pullPolicy }}
@@ -250,7 +250,7 @@ spec:
             {{- end }}
             {{- if .Values.resources }}
             resources:
-              {{- toYaml .Values.resources | nindent 12 }}
+              {{- toYaml .Values.resources | nindent 14 }}
             {{- end }}
   ##### VOLUMES START #####
         volumes:
@@ -301,7 +301,7 @@ spec:
             claimName: {{ .claimName }}
     {{- else if .volume }}
         - name: {{ .name }}
-          {{- toYaml .volume | nindent 8 }}
+          {{- toYaml .volume | nindent 10 }}
     {{- end }}
   {{- end }}
   {{- end }}
@@ -309,19 +309,19 @@ spec:
     {{- if .Values.nodeSelector }}
       {{- with .Values.nodeSelector }}
         nodeSelector:
-          {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
     {{- if .Values.affinity }}
       {{- with .Values.affinity }}
         affinity:
-          {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
     {{- if .Values.tolerations }}
       {{- with .Values.tolerations }}
         tolerations:
-          {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
 {{- end }}
