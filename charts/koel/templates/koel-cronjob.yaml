@@ -17,6 +17,7 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
+  schedule: {{ .Values.koel.cronJob.schedule }}
   jobTemplate:
     metadata:
       labels:

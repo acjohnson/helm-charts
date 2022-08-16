@@ -171,6 +171,10 @@ koel:
   #   runAsGroup: 568
   #   fsGroup: 568
 
+  ## koel cronJob
+  cronJob:
+    schedule: "*/15 * * * *"
+
   ## koel service
   ## templates/koel-service.yaml
   service:
