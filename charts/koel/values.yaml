@@ -24,11 +24,11 @@ components:
 images:
   koel:
     repository: registry.thejohnsons.site/jgesc/koel
-    tag: v6.2.0
+    tag: v6.2.1
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
-    tag: 10.7.3-focal
+    tag: 10.7.6-focal
     pullPolicy: IfNotPresent
 
 # Set the timezone of the koel server
