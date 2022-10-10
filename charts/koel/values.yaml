@@ -24,7 +24,7 @@ components:
 images:
   koel:
     repository: registry.thejohnsons.site/jgesc/koel
-    tag: v6.2.1
+    tag: v6.2.2
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
@@ -133,6 +133,14 @@ adminPassword: changeme
 # The following is the same as --set extraEnv.FOO="bar"
 # extraEnv:
 #   FOO: "bar"
+#   YOUTUBE_API_KEY: "key"
+#   TRANSCODE_FLAC: false
+#   OUTPUT_BIT_RATE: "160"
+#   LASTFM_API_KEY: "key"
+#   LASTFM_API_SECRET: "secret"
+#   CDN_URL: 'http://test/'
+#   ALLOW_DOWNLOAD: false
+#   USE_ITUNES: false
 
 # upgrade strategy type (e.g. Recreate or RollingUpdate)
 strategyType: Recreate
