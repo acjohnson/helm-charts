@@ -133,6 +133,7 @@ adminPassword: changeme
 # The following is the same as --set extraEnv.FOO="bar"
 # extraEnv:
 #   FOO: "bar"
+#   MEMORY_LIMIT: "1024M"
 #   YOUTUBE_API_KEY: "key"
 #   TRANSCODE_FLAC: false
 #   OUTPUT_BIT_RATE: "160"
