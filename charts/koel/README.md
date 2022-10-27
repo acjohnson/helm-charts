@@ -1,6 +1,6 @@
 # koel
 
-![Version: 0.1.28](https://img.shields.io/badge/Version-0.1.28-informational?style=flat-square) ![AppVersion: v6.5.0](https://img.shields.io/badge/AppVersion-v6.5.0-informational?style=flat-square)
+![Version: 0.1.29](https://img.shields.io/badge/Version-0.1.29-informational?style=flat-square) ![AppVersion: v6.5.2](https://img.shields.io/badge/AppVersion-v6.5.2-informational?style=flat-square)
 
 Koel
 
@@ -117,7 +117,7 @@ N/A
 | images.database.tag | string | `"10.7.6-focal"` |  |
 | images.koel.pullPolicy | string | `"IfNotPresent"` |  |
 | images.koel.repository | string | `"registry.thejohnsons.site/jgesc/koel"` |  |
-| images.koel.tag | string | `"v6.5.0"` |  |
+| images.koel.tag | string | `"v6.5.2"` |  |
 | koel.affinity | object | `{}` |  |
 | koel.component | string | `"koel"` |  |
 | koel.cronJob.restartPolicy | string | `"Never"` |  |
