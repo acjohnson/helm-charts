@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: v6.6.0
+appVersion: v6.7.0
 description: Koel
 name: koel
-version: 0.1.31
+version: 0.1.32
 keywords:
   - koel
 home: https://koel.dev/
