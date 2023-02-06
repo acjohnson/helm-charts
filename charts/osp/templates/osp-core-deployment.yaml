@@ -72,7 +72,6 @@ spec:
         resources:
 {{ toYaml .Values.osp_core.resources | indent 10 }}
         {{- end }}
-        command: ["/opt/osp/setup/wait-for-it.sh", "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}:{{ .Values.osp_db.port }}", "-t", "60", "--", "/opt/osp/setup/entrypoint.sh"]
         ports:
         - name: server
           containerPort: {{ .Values.osp_core.service.targetPort }}
@@ -80,8 +79,10 @@ spec:
         - configMapRef:
             name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}"
         env:
-        - name: REDIS_HOST
+        - name: OSP_REDIS_HOST
           value: {{ template "osp.fullname" . }}-{{ .Values.osp_redis.component }}
+        - name: OSP_REDIS_PORT
+          value: "{{ .Values.osp_redis.port }}"
         - name: EJABBERDSERVER
           value: {{ template "osp.fullname" . }}-{{ .Values.osp_ejabberd.component }}
         - name: EJABBERDPASS
@@ -104,17 +105,17 @@ spec:
             secretKeyRef:
               name: "{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}-secret"
               key: MYSQL_DATABASE
-        - name: FLASK_SECRET
+        - name: OSP_CORE_SECRETKEY
           valueFrom:
             secretKeyRef:
               name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-secret"
-              key: FLASK_SECRET
-        - name: FLASK_SALT
+              key: OSP_CORE_SECRETKEY
+        - name: OSP_CORE_PASSWORD_SALT
           valueFrom:
             secretKeyRef:
               name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-secret"
-              key: FLASK_SALT
-        - name: DB_URL
+              key: OSP_CORE_PASSWORD_SALT
+        - name: OSP_CORE_DB
           value: mysql+pymysql://$(OSP_DB_USER):$(OSP_DB_PASSWORD)@{{ template "osp.fullname" . }}-{{ .Values.osp_db.component }}:{{ .Values.osp_db.port }}/$(OSP_DB_NAME)
         volumeMounts:
         - name: "{{ template "osp.fullname" . }}-{{ .Values.osp_core.component }}-{{ .Values.osp_core.volumes.data.name }}"

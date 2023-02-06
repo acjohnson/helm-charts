@@ -65,16 +65,16 @@ components:
 ## Control what images to use for each component
 images:
   osp_ejabberd:
-    repository: registry.thejohnsons.site/deamos/080_osp_ejabberd
-    tag: 0.8.17
+    repository: deamos/osp-ejabberd
+    tag: 0.9.6
     pullPolicy: IfNotPresent
   osp_core:
-    repository: registry.thejohnsons.site/deamos/080_osp_core
-    tag: 0.8.17
+    repository: deamos/osp-core
+    tag: 0.9.6
     pullPolicy: IfNotPresent
   osp_rtmp:
-    repository: registry.thejohnsons.site/deamos/080_osp_rtmp
-    tag: 0.8.17
+    repository: deamos/osp-rtmp
+    tag: 0.9.6
     pullPolicy: IfNotPresent
   osp_db:
     repository: mariadb
@@ -255,12 +255,6 @@ osp_core:
     OSP_REQUIREVERIFICATION: "False"
     OSP_CORE_UI_DEBUG: "False"
     OSP_CORE_LOG_LEVEL: "error"
-    OSP_REDIS_HOST:
-    OSP_REDIS_PORT:
-    OSP_REDIS_PASSWORD:
-    OSP_CORE_DB:
-    OSP_CORE_SECRETKEY:
-    OSP_CORE_PASSWORD_SALT:
     
 
 ## OSP: RTMP
