@@ -28,7 +28,7 @@ images:
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
-    tag: 10.7.1
+    tag: 10.7.8
     pullPolicy: IfNotPresent
 
 # Set the timezone of the roundcube server
