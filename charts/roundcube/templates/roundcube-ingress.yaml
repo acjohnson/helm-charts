@@ -32,9 +32,9 @@ spec:
   tls:
   {{- range .Values.roundcube.ingress.tls }}
     - hosts:
-        {{- range .hosts }}
+      {{- range .hosts }}
         - {{ . | quote }}
-        {{- end }}
+      {{- end }}
       secretName: {{ .secretName }}
   {{- end }}
 {{- end }}
