@@ -6,7 +6,7 @@
 
 image:
   repository: emby/embyserver
-  tag: 4.8.3.0
+  tag: 4.8.5.0
   pullPolicy: IfNotPresent
 
 # Set the timezone of the emby server
