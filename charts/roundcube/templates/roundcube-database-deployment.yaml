@@ -94,7 +94,7 @@ spec:
             - bash 
             - "-c" 
             - | 
-              /usr/bin/mysql --user=root --password=$MYSQL_ROOT_PASSWORD -h 127.0.0.1 -e 'SHOW DATABASES;'
+              /usr/bin/mariadb --user=root --password=$MYSQL_ROOT_PASSWORD -h 127.0.0.1 -e 'SHOW DATABASES;'
           failureThreshold: {{ .Values.database.probe.liveness.failureThreshold }}
           initialDelaySeconds: {{ .Values.database.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.database.probe.liveness.periodSeconds }}
