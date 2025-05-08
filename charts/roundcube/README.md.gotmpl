@@ -40,6 +40,11 @@ helm install {{ template "chart.name" . }} {{ template "custom.helm.path" . }}
 ```
 {{- end -}}
 
+{{- define "custom.upgrade" -}}
+## Upgrade
+Be sure to run `mariadb-upgrade -u root -p` when upgrading to `0.3.0` of this chart or later. This is due to MariaDB being upgraded to version 11.x
+{{- end -}}
+
 {{- define "custom.install" -}}
 ## Installing the Chart
 
@@ -119,6 +124,8 @@ This chart is heavily based on [k8s-at-home/plex](https://github.com/k8s-at-home
 {{ template "custom.dependencies" . }}
 
 {{ template "custom.install.tldr" . }}
+
+{{ template "custom.upgrade" . }}
 
 {{ template "custom.install" . }}
 

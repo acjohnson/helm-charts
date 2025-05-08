@@ -27,6 +27,9 @@ helm repo update
 helm install roundcube thejohnsons/roundcube
 ```
 
+## Upgrade
+Be sure to run `mariadb-upgrade -u root -p` when upgrading to `0.3.0` of this chart or later. This is due to MariaDB being upgraded to version 11.x
+
 ## Installing the Chart
 
 To install the chart with the release name `roundcube`
