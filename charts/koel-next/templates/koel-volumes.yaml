@@ -1,0 +1,57 @@
+{{- if .Values.components.koel }}
+{{- if and (not .Values.koel.persistence.music.claimName) .Values.koel.persistence.music.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-music
+  namespace: {{ template "koel.namespace" . }}
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.koel.persistence.music.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.koel.persistence.music.size | quote }}
+{{- if .Values.koel.persistence.music.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.music.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- if and (not .Values.koel.persistence.covers.claimName) .Values.koel.persistence.covers.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.koel.persistence.covers.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.koel.persistence.covers.size | quote }}
+{{- if .Values.koel.persistence.covers.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.covers.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- if and (not .Values.koel.persistence.data.claimName) .Values.koel.persistence.data.enabled  }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-data
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.koel.persistence.data.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.koel.persistence.data.size | quote }}
+{{- if .Values.koel.persistence.data.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.data.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

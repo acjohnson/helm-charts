@@ -1,0 +1,22 @@
+{{- if .Values.components.koel }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
+  namespace: {{ template "koel.namespace" . }}
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+    component: {{ .Values.koel.component }}
+data:
+  env: |
+    FORCE_HTTPS={{ .Values.forceHttps }}
+    STREAMING_METHOD={{ .Values.streamingMethod }}
+    LOG_CHANNEL={{ .Values.logChannel }}
+    APP_URL={{ .Values.appUrl }}
+    APP_ENV={{ .Values.appEnv }}
+    APP_KEY={{ .Values.appKey }}
+    DEFAULT_ADMIN_NAME={{ .Values.adminName }}
+    DEFAULT_ADMIN_EMAIL={{ .Values.adminEmail }}
+    DEFAULT_ADMIN_PASSWORD={{ .Values.adminPassword }}
+    MEDIA_PATH={{ .Values.mediaPath }}
+{{- end }}

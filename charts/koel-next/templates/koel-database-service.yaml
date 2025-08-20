@@ -1,0 +1,25 @@
+{{- if .Values.components.database }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.database.component }}
+  namespace: {{ template "koel.namespace" . }}
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+{{- if .Values.database.service.labels }}
+{{ toYaml .Values.database.service.labels | indent 4 }}
+{{- end }}
+    component: {{ .Values.database.component }}
+{{- with .Values.database.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: {{ .Values.database.port }}
+      protocol: TCP
+  selector:
+    {{- include "koel.selectorLabels" . | nindent 4 }}
+{{- end }}
