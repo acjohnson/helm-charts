@@ -1,15 +1,14 @@
 apiVersion: v2
-appVersion: v6.12.1
+appVersion: v7.12.0
 description: Koel
-name: koel
-version: 0.2.5
+name: koel-next
+version: 1.0.0
 keywords:
   - koel
 home: https://koel.dev/
 icon: https://koel.dev/_nuxt/img/logo.f9bf992.svg
 sources:
-  - https://github.com/acjohnson/helm-charts/tree/master/charts/koel
-  - https://github.com/jgesc/docker_koel
+  - https://github.com/acjohnson/helm-charts/tree/master/charts/koel-next
   - https://github.com/koel/koel
 maintainers:
   - name: acjohnson

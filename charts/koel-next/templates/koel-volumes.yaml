@@ -41,6 +41,24 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.koel.persistence.search-indexes.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.koel.persistence.search-indexes.size | quote }}
+{{- if .Values.koel.persistence.search-indexes.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.search-indexes.storageClass | quote }}
+{{- end }}
+{{- end }}
+{{- if and (not .Values.koel.persistence.data.claimName) .Values.koel.persistence.data.enabled  }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-data
   labels:
     {{- include "koel.labels" . | nindent 4 }}

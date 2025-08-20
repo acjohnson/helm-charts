@@ -23,12 +23,12 @@ components:
 ## Control what images to use for each component
 images:
   koel:
-    repository: registry.thejohnsons.site/jgesc/koel
-    tag: v6.12.1
+    repository: phanan/koel
+    tag: 7.12.0
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
-    tag: 10.7.8-focal
+    tag: 12.0.2-noble
     pullPolicy: IfNotPresent
 
 # Set the timezone of the koel server
@@ -255,6 +255,24 @@ koel:
       # The requested size of the volume to be used when creating a
       # PersistentVolumeClaim.
       size: 20Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
+
+    search-indexes:
+      # We want to enable a search-indexes pvc
+      enabled: true
+      # Optionally specify claimName to manually override the PVC to be used for
+      # the search-indexes directory. If claimName is specified, storageClass and size
+      # are ignored.
+      ## claimName: "koel-search-indexes-pvc"
+      # Optionally specify a storage class to be used for the search-indexes directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      # subPath: some-subpath
+      storageClass: ""
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 10Gi
       # Access mode for this volume
       accessMode: ReadWriteOnce
 
