@@ -1,6 +1,6 @@
-# koel
+# koel-next
 
-![Version: 0.2.5](https://img.shields.io/badge/Version-0.2.5-informational?style=flat-square) ![AppVersion: v6.12.1](https://img.shields.io/badge/AppVersion-v6.12.1-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![AppVersion: v7.12.0](https://img.shields.io/badge/AppVersion-v7.12.0-informational?style=flat-square)
 
 Koel
 
@@ -8,8 +8,7 @@ Koel
 
 ## Source Code
 
-* <https://github.com/acjohnson/helm-charts/tree/master/charts/koel>
-* <https://github.com/jgesc/docker_koel>
+* <https://github.com/acjohnson/helm-charts/tree/master/charts/koel-next>
 * <https://github.com/koel/koel>
 
 ## Requirements
@@ -24,23 +23,23 @@ Koel
 ```console
 helm repo add thejohnsons https://charts.thejohnsons.site
 helm repo update
-helm install koel thejohnsons/koel
+helm install koel-next thejohnsons/koel-next
 ```
 
 ## Installing the Chart
 
-To install the chart with the release name `koel`
+To install the chart with the release name `koel-next`
 
 ```console
-helm install koel thejohnsons/koel
+helm install koel-next thejohnsons/koel-next
 ```
 
 ## Uninstalling the Chart
 
-To uninstall the `koel` deployment
+To uninstall the `koel-next` deployment
 
 ```console
-helm uninstall koel
+helm uninstall koel-next
 ```
 
 The command removes all the Kubernetes components associated with the chart **including persistent volumes** and deletes the release.
@@ -52,15 +51,15 @@ Read through the [values.yaml](./values.yaml) file. It has several commented out
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
 ```console
-helm install koel \
+helm install koel-next \
   --set timezone="America/New York" \
-    thejohnsons/koel
+    thejohnsons/koel-next
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart.
 
 ```console
-helm install koel thejohnsons/koel -f values.yaml
+helm install koel-next thejohnsons/koel-next -f values.yaml
 ```
 
 ## Custom configuration
@@ -114,10 +113,10 @@ N/A
 | imagePullSecrets | list | `[]` |  |
 | images.database.pullPolicy | string | `"IfNotPresent"` |  |
 | images.database.repository | string | `"mariadb"` |  |
-| images.database.tag | string | `"10.7.8-focal"` |  |
+| images.database.tag | string | `"12.0.2-noble"` |  |
 | images.koel.pullPolicy | string | `"IfNotPresent"` |  |
-| images.koel.repository | string | `"registry.thejohnsons.site/jgesc/koel"` |  |
-| images.koel.tag | string | `"v6.12.1"` |  |
+| images.koel.repository | string | `"phanan/koel"` |  |
+| images.koel.tag | string | `"7.12.0"` |  |
 | koel.affinity | object | `{}` |  |
 | koel.component | string | `"koel"` |  |
 | koel.cronJob.restartPolicy | string | `"Never"` |  |
@@ -141,6 +140,10 @@ N/A
 | koel.persistence.music.enabled | bool | `true` |  |
 | koel.persistence.music.size | string | `"100Gi"` |  |
 | koel.persistence.music.storageClass | string | `""` |  |
+| koel.persistence.search-indexes.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.search-indexes.enabled | bool | `true` |  |
+| koel.persistence.search-indexes.size | string | `"10Gi"` |  |
+| koel.persistence.search-indexes.storageClass | string | `""` |  |
 | koel.podAnnotations | object | `{}` |  |
 | koel.podSecurityContext | object | `{}` |  |
 | koel.probes.liveness.enabled | bool | `true` |  |
