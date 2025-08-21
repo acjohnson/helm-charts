@@ -46,12 +46,12 @@ metadata:
     {{- include "koel.labels" . | nindent 4 }}
 spec:
   accessModes:
-  - {{ .Values.koel.persistence.search-indexes.accessMode | quote }}
+  - {{ .Values.koel.persistence.searchIndexes.accessMode | quote }}
   resources:
     requests:
-      storage: {{ .Values.koel.persistence.search-indexes.size | quote }}
-{{- if .Values.koel.persistence.search-indexes.storageClass }}
-  storageClassName: {{ .Values.koel.persistence.search-indexes.storageClass | quote }}
+      storage: {{ .Values.koel.persistence.searchIndexes.size | quote }}
+{{- if .Values.koel.persistence.searchIndexes.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.searchIndexes.storageClass | quote }}
 {{- end }}
 {{- end }}
 {{- if and (not .Values.koel.persistence.data.claimName) .Values.koel.persistence.data.enabled  }}

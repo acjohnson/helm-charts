@@ -288,7 +288,7 @@ koel:
       # Access mode for this volume
       accessMode: ReadWriteOnce
 
-    search-indexes:
+    searchIndexes:
       # We want to enable a search-indexes pvc
       enabled: true
       # Optionally specify claimName to manually override the PVC to be used for

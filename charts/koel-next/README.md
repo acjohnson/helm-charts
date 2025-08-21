@@ -140,10 +140,10 @@ N/A
 | koel.persistence.music.enabled | bool | `true` |  |
 | koel.persistence.music.size | string | `"100Gi"` |  |
 | koel.persistence.music.storageClass | string | `""` |  |
-| koel.persistence.search-indexes.accessMode | string | `"ReadWriteOnce"` |  |
-| koel.persistence.search-indexes.enabled | bool | `true` |  |
-| koel.persistence.search-indexes.size | string | `"10Gi"` |  |
-| koel.persistence.search-indexes.storageClass | string | `""` |  |
+| koel.persistence.searchIndexes.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.searchIndexes.enabled | bool | `true` |  |
+| koel.persistence.searchIndexes.size | string | `"10Gi"` |  |
+| koel.persistence.searchIndexes.storageClass | string | `""` |  |
 | koel.podAnnotations | object | `{}` |  |
 | koel.podSecurityContext | object | `{}` |  |
 | koel.probes.liveness.enabled | bool | `true` |  |

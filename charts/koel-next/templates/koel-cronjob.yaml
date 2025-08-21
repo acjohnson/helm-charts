@@ -116,10 +116,10 @@ spec:
                 value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers
       {{- end }}
       {{- end }}
-      {{- if .Values.koel.persistence.search-indexes.enabled }}
+      {{- if .Values.koel.persistence.searchIndexes.enabled }}
               - name: SEARCH_INDEXES_PVC
-      {{- if .Values.koel.persistence.search-indexes.claimName }}
-                value: "{{ .Values.koel.persistence.search-indexes.claimName }}"
+      {{- if .Values.koel.persistence.searchIndexes.claimName }}
+                value: "{{ .Values.koel.persistence.searchIndexes.claimName }}"
       {{- else }}
                 value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
       {{- end }}
@@ -218,11 +218,11 @@ spec:
                 subPath: {{ .Values.koel.persistence.covers.subPath }}
               {{- end }}
               {{- end }}
-              {{- if .Values.koel.persistence.search-indexes.enabled }}
+              {{- if .Values.koel.persistence.searchIndexes.enabled }}
               - name: search-indexes
                 mountPath: /var/www/html/storage/search-indexes
-              {{- if .Values.koel.persistence.search-indexes.subPath }}
-                subPath: {{ .Values.koel.persistence.search-indexes.subPath }}
+              {{- if .Values.koel.persistence.searchIndexes.subPath }}
+                subPath: {{ .Values.koel.persistence.searchIndexes.subPath }}
               {{- end }}
               {{- end }}
               {{- if .Values.koel.persistence.data.enabled }}
