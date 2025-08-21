@@ -64,8 +64,8 @@ spec:
                 - "-c"
                 - |
                   sleep 30;
-                  sudo -Eu www-data php artisan koel:init --no-interaction --no-assets;
-                  sudo -Eu www-data php artisan koel:search:import --no-interaction;
+                  php artisan koel:init --no-interaction --no-assets;
+                  php artisan koel:search:import --no-interaction;
           ports:
           - name: koel-http
             protocol: TCP
@@ -254,18 +254,12 @@ spec:
           - name: {{ .secretName }}
             mountPath: /etc/apache2/ssl/private/koel.key
             subPath: tls.key
-          - name: {{ $fullName }}-{{ $component }}-env
-            mountPath: /var/www/html/.env
-            subPath: env
           {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 ##### VOLUMES START #####
       volumes:
-      - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
-        configMap:
-          name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
 {{- range .Values.koel.ingress.tls }}
 {{- if .secretName }}
       - name: {{ .secretName }}

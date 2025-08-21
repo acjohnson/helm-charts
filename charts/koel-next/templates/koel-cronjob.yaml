@@ -60,7 +60,7 @@ spec:
               - bash
               - "-c"
               - |
-                sudo -Eu www-data php artisan koel:sync
+                php artisan koel:sync
               ports:
               - name: koel-http
                 protocol: TCP
@@ -254,9 +254,6 @@ spec:
               - name: {{ .secretName }}
                 mountPath: /etc/apache2/ssl/private/koel.key
                 subPath: tls.key
-              - name: {{ $fullName }}-{{ $component }}-env
-                mountPath: /var/www/html/.env
-                subPath: env
               {{- end }}
               {{- end }}
               {{- end }}
@@ -266,9 +263,6 @@ spec:
               {{- end }}
     ##### VOLUMES START #####
           volumes:
-          - name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
-            configMap:
-              name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-env
     {{- if .Values.koel.ingress.tls }}
     {{- range .Values.koel.ingress.tls }}
     {{- if .secretName }}
