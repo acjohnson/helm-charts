@@ -59,8 +59,8 @@ httpPort: 80
 httpsPort: 443
 
 # Force https
-# Default is true
-forceHttps: true
+# Default is false
+forceHttps: false
 
 # Set the username of the webserver user
 # Default is www-data
@@ -84,6 +84,8 @@ appEnv: production
 appKey: base64:6Z4nhTRH7lsWQvc4Q/gr6fq2Y4uQmmWjurAvW0Q3GjQ=
 
 # Set the streaming method
+# It's HIGHLY recommended to use 'x-sendfile' or 'x-accel-redirect' if
+# you plan to use the Koel mobile apps.
 # Default is x-sendfile
 streamingMethod: x-sendfile
 
@@ -142,6 +144,34 @@ adminPassword: changeme
 #   CDN_URL: 'http://test/'
 #   ALLOW_DOWNLOAD: false
 #   USE_ITUNES: false
+#   APP_DEBUG=true
+#   ARTIFACTS_PATH=
+#   APP_MAX_SCAN_TIME=600
+#   SCOUT_DRIVER=tntsearch
+#   ALGOLIA_APP_ID=
+#   ALGOLIA_SECRET=
+#   MEILISEARCH_HOST=
+#   MEILISEARCH_KEY=
+#   USE_MUSICBRAINZ=true
+#   YOUTUBE_API_KEY=
+#   TRANSCODE_BIT_RATE=128
+#   ALLOW_DOWNLOAD=true
+#   MEDIA_BROWSER_ENABLED=false
+#   SYNC_LOG_LEVEL=error
+#   MAIL_FROM_ADDRESS=hello@example.com
+#   MAIL_FROM_NAME="${APP_NAME}"
+#   MAIL_MAILER=smtp
+#   MAIL_HOST=mailhog
+#   MAIL_PORT=1025
+#   MAIL_USERNAME=null
+#   MAIL_PASSWORD=null
+#   MAIL_ENCRYPTION=null
+#   BROADCAST_CONNECTION=log
+#   CACHE_DRIVER=file
+#   FILESYSTEM_DISK=local
+#   QUEUE_CONNECTION=sync
+#   SESSION_DRIVER=file
+#   SESSION_LIFETIME=120
 
 # upgrade strategy type (e.g. Recreate or RollingUpdate)
 strategyType: Recreate

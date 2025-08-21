@@ -1,6 +1,6 @@
 # koel-next
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![AppVersion: v7.12.0](https://img.shields.io/badge/AppVersion-v7.12.0-informational?style=flat-square)
+![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square) ![AppVersion: v7.12.0](https://img.shields.io/badge/AppVersion-v7.12.0-informational?style=flat-square)
 
 Koel
 
@@ -105,7 +105,7 @@ N/A
 | dbPassword | string | `"changeme"` |  |
 | dbRootPassword | string | `"changeme"` |  |
 | dbUsername | string | `"koel"` |  |
-| forceHttps | bool | `true` |  |
+| forceHttps | bool | `false` |  |
 | fullnameOverride | string | `""` |  |
 | hostNetwork | bool | `false` |  |
 | httpPort | int | `80` |  |
