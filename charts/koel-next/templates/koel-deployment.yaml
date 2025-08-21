@@ -65,7 +65,10 @@ spec:
                 - |
                   sleep 30;
                   php artisan koel:init --no-interaction --no-assets;
-                  php artisan koel:search:import --no-interaction;
+                  #php artisan koel:search:import --no-interaction;
+                  # Commenting out for now due to:
+                  #  SQLSTATE[HY000]: General error: 11 database disk image is malformed
+                  #at vendor/teamtnt/tntsearch/src/Engines/SqliteEngine.php:442
           ports:
           - name: koel-http
             protocol: TCP
