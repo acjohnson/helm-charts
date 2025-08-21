@@ -219,7 +219,7 @@ koel:
   ## templates/koel-service.yaml
   service:
     type: ClusterIP
-    defaultProtocol: "https"
+    defaultProtocol: "http"
     ports:
       http: 80
       https: 443

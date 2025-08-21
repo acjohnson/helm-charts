@@ -1,6 +1,6 @@
 # koel-next
 
-![Version: 1.0.5](https://img.shields.io/badge/Version-1.0.5-informational?style=flat-square) ![AppVersion: v7.12.0](https://img.shields.io/badge/AppVersion-v7.12.0-informational?style=flat-square)
+![Version: 1.0.6](https://img.shields.io/badge/Version-1.0.6-informational?style=flat-square) ![AppVersion: v7.12.0](https://img.shields.io/badge/AppVersion-v7.12.0-informational?style=flat-square)
 
 Koel
 
@@ -163,7 +163,7 @@ N/A
 | koel.resources | object | `{}` |  |
 | koel.restartPodsOnConfigMapChange | bool | `false` |  |
 | koel.service.annotations | object | `{}` |  |
-| koel.service.defaultProtocol | string | `"https"` |  |
+| koel.service.defaultProtocol | string | `"http"` |  |
 | koel.service.labels | object | `{}` |  |
 | koel.service.loadBalancerIP | string | `nil` |  |
 | koel.service.ports.http | int | `80` |  |
