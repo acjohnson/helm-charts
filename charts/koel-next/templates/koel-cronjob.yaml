@@ -301,7 +301,7 @@ spec:
             persistentVolumeClaim:
       {{- if .Values.koel.persistence.searchIndexes.claimName }}
               claimName: "{{ .Values.koel.persistence.searchIndexes.claimName }}"
-      {{- else }} 
+      {{- else }}
               claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
       {{- end }}
     {{- end }}
