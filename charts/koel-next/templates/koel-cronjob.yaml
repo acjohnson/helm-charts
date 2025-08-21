@@ -296,6 +296,15 @@ spec:
               claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-covers
       {{- end }}
     {{- end }}
+    {{- if .Values.koel.persistence.searchIndexes.enabled }}
+          - name: search-indexes
+            persistentVolumeClaim:
+      {{- if .Values.koel.persistence.searchIndexes.claimName }}
+              claimName: "{{ .Values.koel.persistence.searchIndexes.claimName }}"
+      {{- else }} 
+              claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
+      {{- end }}
+    {{- end }}
     {{- if .Values.koel.persistence.data.enabled }}
           - name: data
             persistentVolumeClaim:
