@@ -56,4 +56,5 @@ spec:
 {{- end }}
   selector:
     {{- include "roundcube.selectorLabels" . | nindent 4 }}
+    component: roundcube
 {{- end }}
