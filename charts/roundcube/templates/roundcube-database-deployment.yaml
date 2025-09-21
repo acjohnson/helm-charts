@@ -113,18 +113,18 @@ spec:
             mountPath: /etc/mysql/conf.d/custom.cnf
           {{- end }}
       volumes:
-    {{- if .Values.database.extraConfig }}
-      - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-config
+      {{- if .Values.database.extraConfig }}
+      - name: custom-config
         configMap:
-          name: custom-config
-    {{- end }}
-    {{- if not .Values.database.persistence.data.enabled }}
-        - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
-          emptyDir: {}
-    {{- end }}
-    {{- if .Values.database.persistence.data.enabled }}
-        - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
-          persistentVolumeClaim:
-            claimName: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
-    {{- end }}
+          name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-config
+      {{- end }}
+      {{- if not .Values.database.persistence.data.enabled }}
+      - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.database.persistence.data.enabled }}
+      - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+        persistentVolumeClaim:
+          claimName: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
+      {{- end }}
 {{- end }}
