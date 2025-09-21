@@ -107,7 +107,17 @@ spec:
         volumeMounts:
           - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
             mountPath: "{{ .Values.database.persistence.data.mountPath }}"
+          {{- if .Values.database.extraConfig }}
+          - name: custom-config
+            subPath: custom.cnf
+            mountPath: /etc/mysql/conf.d/custom.cnf
+          {{- end }}
       volumes:
+    {{- if .Values.database.extraConfig }}
+      - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-config
+        configMap:
+          name: custom-config
+    {{- end }}
     {{- if not .Values.database.persistence.data.enabled }}
         - name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-{{ .Values.database.persistence.data.name }}
           emptyDir: {}

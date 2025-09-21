@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.3.4](https://img.shields.io/badge/Version-0.3.4-informational?style=flat-square) ![AppVersion: v1.6.11](https://img.shields.io/badge/AppVersion-v1.6.11-informational?style=flat-square)
+![Version: 0.3.5](https://img.shields.io/badge/Version-0.3.5-informational?style=flat-square) ![AppVersion: v1.6.11](https://img.shields.io/badge/AppVersion-v1.6.11-informational?style=flat-square)
 
 Roundcube
 
@@ -82,6 +82,8 @@ N/A
 | database.affinity.type | string | `"requiredDuringSchedulingIgnoredDuringExecution"` |  |
 | database.component | string | `"database"` |  |
 | database.deploymentAnnotations | object | `{}` |  |
+| database.extraConfig | object | `{}` |  |
+| database.extraEnv | object | `{}` |  |
 | database.gracePeriod | int | `30` |  |
 | database.persistence.data.accessMode | string | `"ReadWriteOnce"` |  |
 | database.persistence.data.enabled | bool | `true` |  |

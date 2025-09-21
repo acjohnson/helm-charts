@@ -387,5 +387,9 @@ database:
   deploymentAnnotations: {}
   # You can add as many Additional ENV variables here
   # The following is the same as --set database.extraEnv.FOO="bar"
-  # extraEnv:
-  #   FOO: "bar"
+  extraEnv: {}
+  #  FOO: "bar"
+  extraConfig: {}
+  #  mysqld:
+  #    innodb_buffer_pool_size: "512M"
+  #    "skip-name-resolve": true # Quoted because of dash in key

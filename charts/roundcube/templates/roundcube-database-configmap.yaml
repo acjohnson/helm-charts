@@ -1,0 +1,24 @@
+{{- if .Values.components.database .Values.database.extraConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-config
+  namespace: {{ template "roundcube.namespace" . }}
+  labels:
+    {{- include "roundcube.labels" . | nindent 4 }}
+    component: {{ .Values.database.component }}
+data:
+  custom.cnf: |-
+    {{- range $section, $settings := .Values.database.extraConfig }}
+    [{{ $section }}]
+    {{- range $key, $value := $settings }}
+    {{- if kindIs "bool" $value }}
+    {{- if $value }}
+    {{ $key }}
+    {{- end }}
+    {{- else }}
+    {{ $key }}={{ $value }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end }}
