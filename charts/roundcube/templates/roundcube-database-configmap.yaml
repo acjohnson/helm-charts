@@ -1,4 +1,4 @@
-{{- if .Values.components.database .Values.database.extraConfig }}
+{{- if and .Values.components.database (hasKey .Values.database "extraConfig") .Values.database.extraConfig }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,6 +10,7 @@ metadata:
 data:
   custom.cnf: |-
     {{- range $section, $settings := .Values.database.extraConfig }}
+    {{- if $settings }}
     [{{ $section }}]
     {{- range $key, $value := $settings }}
     {{- if kindIs "bool" $value }}
@@ -18,6 +19,7 @@ data:
     {{- end }}
     {{- else }}
     {{ $key }}={{ $value }}
+    {{- end }}
     {{- end }}
     {{- end }}
     {{- end }}
