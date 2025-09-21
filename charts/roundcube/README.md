@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.3.3](https://img.shields.io/badge/Version-0.3.3-informational?style=flat-square) ![AppVersion: v1.6.11](https://img.shields.io/badge/AppVersion-v1.6.11-informational?style=flat-square)
+![Version: 0.3.4](https://img.shields.io/badge/Version-0.3.4-informational?style=flat-square) ![AppVersion: v1.6.11](https://img.shields.io/badge/AppVersion-v1.6.11-informational?style=flat-square)
 
 Roundcube
 

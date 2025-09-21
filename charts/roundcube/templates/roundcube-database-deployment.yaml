@@ -87,6 +87,11 @@ spec:
             secretKeyRef:
               name: {{ template "roundcube.fullname" . }}-{{ .Values.database.component }}-secret
               key: MYSQL_USER
+        # Extra ENV Values supplied by user
+        {{- range $key, $value := .Values.database.extraEnv }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
         {{- if .Values.database.probe.liveness.enabled }}
         livenessProbe:
           exec:
