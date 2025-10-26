@@ -65,16 +65,16 @@ components:
 ## Control what images to use for each component
 images:
   osp_ejabberd:
-    repository: deamos/osp-ejabberd
-    tag: 0.9.7
+    repository: registry.thejohnsons.site/deamos/osp_ejabberd
+    tag: 0.9.12
     pullPolicy: IfNotPresent
   osp_core:
-    repository: deamos/osp-core
-    tag: 0.9.7
+    repository: registry.thejohnsons.site/deamos/osp_core
+    tag: 0.9.12
     pullPolicy: IfNotPresent
   osp_rtmp:
-    repository: deamos/osp-rtmp
-    tag: 0.9.7
+    repository: registry.thejohnsons.site/deamos/osp_rtmp
+    tag: 0.9.12
     pullPolicy: IfNotPresent
   osp_db:
     repository: mariadb
