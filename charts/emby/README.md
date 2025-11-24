@@ -1,6 +1,6 @@
 # emby
 
-![Version: 0.0.26](https://img.shields.io/badge/Version-0.0.26-informational?style=flat-square) ![AppVersion: 4.9.1.80](https://img.shields.io/badge/AppVersion-4.9.1.80-informational?style=flat-square)
+![Version: 0.0.27](https://img.shields.io/badge/Version-0.0.27-informational?style=flat-square) ![AppVersion: 4.9.1.80](https://img.shields.io/badge/AppVersion-4.9.1.80-informational?style=flat-square)
 
 Emby Server
 
@@ -117,6 +117,7 @@ N/A
 | image.tag | string | `"4.9.1.80"` |  |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
+| ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0] | string | `"chart-example.local"` |  |
 | ingress.path | string | `"/"` |  |
