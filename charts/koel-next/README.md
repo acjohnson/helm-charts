@@ -1,6 +1,6 @@
 # koel-next
 
-![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![AppVersion: v8.1.0](https://img.shields.io/badge/AppVersion-v8.1.0-informational?style=flat-square)
+![Version: 1.1.1](https://img.shields.io/badge/Version-1.1.1-informational?style=flat-square) ![AppVersion: v8.1.0](https://img.shields.io/badge/AppVersion-v8.1.0-informational?style=flat-square)
 
 Koel
 
@@ -123,6 +123,7 @@ N/A
 | koel.cronJob.schedule | string | `"*/15 * * * *"` |  |
 | koel.deploymentAnnotations | object | `{}` |  |
 | koel.ingress.annotations | object | `{}` |  |
+| koel.ingress.className | string | `""` |  |
 | koel.ingress.enabled | bool | `false` |  |
 | koel.ingress.hosts[0] | string | `"chart-example.local"` |  |
 | koel.ingress.path | string | `"/"` |  |
