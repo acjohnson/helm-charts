@@ -1,6 +1,6 @@
 # emby
 
-![Version: 0.0.27](https://img.shields.io/badge/Version-0.0.27-informational?style=flat-square) ![AppVersion: 4.9.1.80](https://img.shields.io/badge/AppVersion-4.9.1.80-informational?style=flat-square)
+![Version: 0.0.28](https://img.shields.io/badge/Version-0.0.28-informational?style=flat-square) ![AppVersion: 4.9.1.90](https://img.shields.io/badge/AppVersion-4.9.1.90-informational?style=flat-square)
 
 Emby Server
 
@@ -114,7 +114,7 @@ N/A
 | httpsPort | int | `8920` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"emby/embyserver"` |  |
-| image.tag | string | `"4.9.1.80"` |  |
+| image.tag | string | `"4.9.1.90"` |  |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
