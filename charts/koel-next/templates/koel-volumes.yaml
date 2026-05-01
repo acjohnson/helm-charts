@@ -54,6 +54,24 @@ spec:
   storageClassName: {{ .Values.koel.persistence.searchIndexes.storageClass | quote }}
 {{- end }}
 {{- end }}
+{{- if and (not .Values.koel.persistence.framework.claimName) .Values.koel.persistence.framework.enabled  }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework
+  labels:
+    {{- include "koel.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - {{ .Values.koel.persistence.framework.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.koel.persistence.framework.size | quote }}
+{{- if .Values.koel.persistence.framework.storageClass }}
+  storageClassName: {{ .Values.koel.persistence.framework.storageClass | quote }}
+{{- end }}
+{{- end }}
 {{- if and (not .Values.koel.persistence.data.claimName) .Values.koel.persistence.data.enabled  }}
 ---
 apiVersion: v1
