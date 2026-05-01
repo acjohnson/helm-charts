@@ -128,6 +128,14 @@ spec:
             value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
   {{- end }}
   {{- end }}
+  {{- if .Values.koel.persistence.framework.enabled }}
+          - name: FRAMEWORK_PVC
+  {{- if .Values.koel.persistence.framework.claimName }}
+            value: "{{ .Values.koel.persistence.framework.claimName }}"
+  {{- else }}
+            value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework
+  {{- end }}
+  {{- end }}
   {{- if .Values.koel.persistence.data.enabled }}
           - name: DATA_PVC
   {{- if .Values.koel.persistence.data.claimName }}
@@ -227,6 +235,13 @@ spec:
             subPath: {{ .Values.koel.persistence.searchIndexes.subPath }}
           {{- end }}
           {{- end }}
+          {{- if .Values.koel.persistence.framework.enabled }}
+          - name: framework
+            mountPath: /var/www/html/storage/framework
+          {{- if .Values.koel.persistence.framework.subPath }}
+            subPath: {{ .Values.koel.persistence.framework.subPath }}
+          {{- end }}
+          {{- end }}
           {{- if .Values.koel.persistence.data.enabled }}
           - name: data
             mountPath: /data
@@ -291,6 +306,15 @@ spec:
           claimName: "{{ .Values.koel.persistence.searchIndexes.claimName }}"
   {{- else }}
           claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
+  {{- end }}
+{{- end }}
+{{- if .Values.koel.persistence.framework.enabled }}
+      - name: framework
+        persistentVolumeClaim:
+  {{- if .Values.koel.persistence.framework.claimName }}
+          claimName: "{{ .Values.koel.persistence.framework.claimName }}"
+  {{- else }} 
+          claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework
   {{- end }}
 {{- end }}
 {{- if .Values.koel.persistence.data.enabled }}

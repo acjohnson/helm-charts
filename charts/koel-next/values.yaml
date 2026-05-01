@@ -307,6 +307,24 @@ koel:
       # Access mode for this volume
       accessMode: ReadWriteOnce
 
+    framework:
+      # We want to enable a framework pvc
+      enabled: true
+      # Optionally specify claimName to manually override the PVC to be used for
+      # the search-indexes directory. If claimName is specified, storageClass and size
+      # are ignored.
+      ## claimName: "koel-framework-pvc"
+      # Optionally specify a storage class to be used for the framework directory.
+      # If not specified and claimName is not specified, the default storage
+      # class will be used.
+      # subPath: some-subpath
+      storageClass: ""
+      # The requested size of the volume to be used when creating a
+      # PersistentVolumeClaim.
+      size: 10Gi
+      # Access mode for this volume
+      accessMode: ReadWriteOnce
+
     data:
       # We want to enable a data pvc (use for sqlite database perhaps)
       enabled: false

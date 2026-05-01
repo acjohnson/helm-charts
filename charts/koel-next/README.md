@@ -1,6 +1,6 @@
 # koel-next
 
-![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![AppVersion: v9.2.0](https://img.shields.io/badge/AppVersion-v9.2.0-informational?style=flat-square)
+![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square) ![AppVersion: v9.2.0](https://img.shields.io/badge/AppVersion-v9.2.0-informational?style=flat-square)
 
 Koel
 
@@ -137,6 +137,10 @@ N/A
 | koel.persistence.data.size | string | `"20Gi"` |  |
 | koel.persistence.data.storageClass | string | `""` |  |
 | koel.persistence.extraMounts | list | `[]` |  |
+| koel.persistence.framework.accessMode | string | `"ReadWriteOnce"` |  |
+| koel.persistence.framework.enabled | bool | `true` |  |
+| koel.persistence.framework.size | string | `"10Gi"` |  |
+| koel.persistence.framework.storageClass | string | `""` |  |
 | koel.persistence.music.accessMode | string | `"ReadWriteOnce"` |  |
 | koel.persistence.music.enabled | bool | `true` |  |
 | koel.persistence.music.size | string | `"100Gi"` |  |
