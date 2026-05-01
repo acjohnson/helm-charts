@@ -234,7 +234,7 @@ spec:
               {{- end }}
               {{- end }}
               {{- if .Values.koel.persistence.frameworkCache.enabled }}
-              - name: frameworkCache
+              - name: framework-cache
                 mountPath: /var/www/html/storage/framework/cache
               {{- if .Values.koel.persistence.frameworkCache.subPath }}
                 subPath: {{ .Values.koel.persistence.frameworkCache.subPath }}
@@ -315,7 +315,7 @@ spec:
       {{- end }}
     {{- end }}
     {{- if .Values.koel.persistence.frameworkCache.enabled }}
-          - name: frameworkCache
+          - name: framework-cache
             persistentVolumeClaim:
       {{- if .Values.koel.persistence.frameworkCache.claimName }}
               claimName: "{{ .Values.koel.persistence.frameworkCache.claimName }}"
