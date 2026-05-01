@@ -59,7 +59,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-frameworkCache
+  name: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework-cache
   labels:
     {{- include "koel.labels" . | nindent 4 }}
 spec:

@@ -133,7 +133,7 @@ spec:
   {{- if .Values.koel.persistence.frameworkCache.claimName }}
             value: "{{ .Values.koel.persistence.frameworkCache.claimName }}"
   {{- else }}
-            value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-frameworkCache
+            value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework-cache
   {{- end }}
   {{- end }}
   {{- if .Values.koel.persistence.data.enabled }}
@@ -314,7 +314,7 @@ spec:
   {{- if .Values.koel.persistence.frameworkCache.claimName }}
           claimName: "{{ .Values.koel.persistence.frameworkCache.claimName }}"
   {{- else }} 
-          claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-frameworkCache
+          claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework-cache
   {{- end }}
 {{- end }}
 {{- if .Values.koel.persistence.data.enabled }}
