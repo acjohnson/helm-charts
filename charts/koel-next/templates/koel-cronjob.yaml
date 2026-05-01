@@ -124,12 +124,12 @@ spec:
                 value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
       {{- end }}
       {{- end }}
-      {{- if .Values.koel.persistence.framework.enabled }}
+      {{- if .Values.koel.persistence.frameworkCache.enabled }}
               - name: FRAMEWORK_PVC
-      {{- if .Values.koel.persistence.framework.claimName }}
-                value: "{{ .Values.koel.persistence.framework.claimName }}"
+      {{- if .Values.koel.persistence.frameworkCache.claimName }}
+                value: "{{ .Values.koel.persistence.frameworkCache.claimName }}"
       {{- else }}
-                value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework
+                value: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-frameworkCache
       {{- end }}
       {{- end }}
       {{- if .Values.koel.persistence.data.enabled }}
@@ -233,11 +233,11 @@ spec:
                 subPath: {{ .Values.koel.persistence.searchIndexes.subPath }}
               {{- end }}
               {{- end }}
-              {{- if .Values.koel.persistence.framework.enabled }}
-              - name: framework
-                mountPath: /var/www/html/storage/framework
-              {{- if .Values.koel.persistence.framework.subPath }}
-                subPath: {{ .Values.koel.persistence.framework.subPath }}
+              {{- if .Values.koel.persistence.frameworkCache.enabled }}
+              - name: frameworkCache
+                mountPath: /var/www/html/storage/framework/cache
+              {{- if .Values.koel.persistence.frameworkCache.subPath }}
+                subPath: {{ .Values.koel.persistence.frameworkCache.subPath }}
               {{- end }}
               {{- end }}
               {{- if .Values.koel.persistence.data.enabled }}
@@ -314,13 +314,13 @@ spec:
               claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-search-indexes
       {{- end }}
     {{- end }}
-    {{- if .Values.koel.persistence.framework.enabled }}
-          - name: framework
+    {{- if .Values.koel.persistence.frameworkCache.enabled }}
+          - name: frameworkCache
             persistentVolumeClaim:
-      {{- if .Values.koel.persistence.framework.claimName }}
-              claimName: "{{ .Values.koel.persistence.framework.claimName }}"
+      {{- if .Values.koel.persistence.frameworkCache.claimName }}
+              claimName: "{{ .Values.koel.persistence.frameworkCache.claimName }}"
       {{- else }}
-              claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-framework
+              claimName: {{ template "koel.fullname" . }}-{{ .Values.koel.component }}-frameworkCache
       {{- end }}
     {{- end }}
     {{- if .Values.koel.persistence.data.enabled }}
