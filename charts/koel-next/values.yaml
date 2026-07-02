@@ -24,7 +24,7 @@ components:
 images:
   koel:
     repository: phanan/koel
-    tag: 9.2.0
+    tag: 9.3.5
     pullPolicy: IfNotPresent
   database:
     repository: mariadb
