@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: v9.10.1
+appVersion: v9.11.0
 description: Koel
 name: koel-next
-version: 1.4.0
+version: 1.4.1
 keywords:
   - koel
 home: https://koel.dev/
