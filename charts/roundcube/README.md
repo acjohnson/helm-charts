@@ -1,6 +1,6 @@
 # roundcube
 
-![Version: 0.3.10](https://img.shields.io/badge/Version-0.3.10-informational?style=flat-square) ![AppVersion: v1.6.14](https://img.shields.io/badge/AppVersion-v1.6.14-informational?style=flat-square)
+![Version: 0.3.11](https://img.shields.io/badge/Version-0.3.11-informational?style=flat-square) ![AppVersion: v1.6.14](https://img.shields.io/badge/AppVersion-v1.6.14-informational?style=flat-square)
 
 Roundcube
 
@@ -98,6 +98,7 @@ N/A
 | database.probe.liveness.failureThreshold | int | `5` |  |
 | database.probe.liveness.initialDelaySeconds | int | `30` |  |
 | database.probe.liveness.periodSeconds | int | `60` |  |
+| database.securityContext | object | `{}` |  |
 | database.service.annotations | object | `{}` |  |
 | database.tolerations | list | `[]` |  |
 | dbName | string | `"roundcubemail"` |  |

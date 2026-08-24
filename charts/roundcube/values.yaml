@@ -345,6 +345,13 @@ database:
   #   runAsUser: 568
   #   runAsGroup: 568
   #   fsGroup: 568
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
   port: 3306
 

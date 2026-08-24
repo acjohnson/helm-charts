@@ -43,7 +43,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
     {{- end }}
       securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- toYaml .Values.database.securityContext | nindent 8 }}
     {{- if .Values.database.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.database.nodeSelector | indent 8 }}
