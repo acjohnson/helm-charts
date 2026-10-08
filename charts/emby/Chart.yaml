@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: 4.9.5.0
+appVersion: 4.10.1.0
 description: Emby Server
 name: emby
-version: 0.0.30
+version: 0.0.31
 keywords:
   - emby
 home: https://emby.media/
